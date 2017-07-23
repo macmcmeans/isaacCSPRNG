@@ -1,18 +1,18 @@
 # isaacCSPRNG
-ISAAC is a *cryptographically secure* pseudo-random number generator (CSPRNG) designed by Robert J.
+ISAAC is a *cryptographically secure* pseudo-random number generator (CSPRNG) created by Robert J.
 Jenkins Jr., in 1996, based on RC4. Designed for speed and security, ISAAC (Indirection, Shift, 
 Accumulate, Add, and Count) generates 32-bit random numbers. Cycles are guaranteed to be at least 2^40 
 values long, and they are 2^8295 values long on average. The results are uniformly distributed, unbiased,
 and unpredictable unless you know the seed.
 
-Internally, this implemntation is mostly Rinquin's logic which appears to be quite similar, but not identical to,
+Internally, this implementation is mostly Rinquin's logic which appears to be quite similar, but not identical to,
 Jenkins' original work (in C) which he released into the Public Domain. My contributions are a
 namespace, so that separate instances may be created, as well as helper functions to spit out random
 bytes, or random strings, of desired lengths. The int32, double and range methods expand the output options
 from Rinquin's original random and rand methods. Since ISAAC is a CSPRNG, I also added helper functions 
 to perform simple vernam encryption. As an academic option, I added the ability to save and set the
-generator's internal state via JSON, since Rinquin already had an available internals method. Lastly,
-I made unseeded instances internally set themselves with a default seed from Window.crypto values.
+generator's internal state via JSON. Lastly, I made unseeded instances internally set themselves with a default
+seed from Window.crypto values.
 
 There are surprisingly few JavaScript examples of this CSRPNG. Considering it's over 20 years old, and 
 has never been proven broken, one would expect more mention of it.
