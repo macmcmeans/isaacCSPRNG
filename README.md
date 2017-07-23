@@ -115,6 +115,8 @@ An incomplete <a href="https://github.com/macmcmeans//isaacCSPRNG.js/wiki">wiki 
 // zeroize the generator
 > prng1.reset();
 ```
+<br>&nbsp;<br>
+
 
 ## REFS:
 https://github.com/rubycon/isaac.js/blob/master/isaac.js
@@ -125,7 +127,6 @@ http://www.burtleburtle.net/bob/c/readable.c
 
 http://rosettacode.org/wiki/The_ISAAC_Cipher
 <br>&nbsp;<br>
-
 
 
 ## Tested:
