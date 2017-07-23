@@ -39,11 +39,6 @@ Average 2^8295; not less than 2^40
 <br>&nbsp;<br>
 
 
-## Wiki:
-An incomplete <a href="https://github.com/macmcmeans//isaacCSPRNG/wiki">wiki is here</a>.
-<br>&nbsp;<br>
-
-
 ## Example usage:
 
 ```
