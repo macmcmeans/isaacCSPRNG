@@ -92,7 +92,7 @@ Average 2^8295; not less than 2^40
 > prng1.decipher( 'key', secret, 1 )              -->  "message"
 
 
-// return vernam encryption of message
+// return vernam encryption of message (raw XOR)
 > secret = prng1.encipher( 'key', 'message' )     -->  ")GA;!?"
 
 // return vernam decryption of message
