@@ -130,11 +130,13 @@ Average 2^8295; not less than 2^40
 
 
 / return encrypted message, in hex (both key and message contain Unicode graphemes)
-> secret = prng1.encipher( '𝙠𝙚𝙮 🚗 ന് മി', '𝖒𝖊𝖘𝖘𝖆𝖌𝖊 📪 message ക്ഷധഃഃ ഝ', 1 );  -->
-"d81cddc0d80eddb9d84eddc1d871ddc5d80bdda8d85ddda1d819ddde0079d849dcc10052005d00110007003c003d00110012006f0d3a0d150d000d560d770d6a000d0d63"
+> secret = prng1.encipher( '𝙠𝙚𝙮 ⚷🔑⚿ ന് മി', '𝖒𝖊𝖘𝖘𝖆𝖌𝖊 📧 📩 💌 📬 ക്ഷധഃഃ ഝ', 1 );  -->
+"d85addccd856dda2d86fddf3d86bddfdd801ddbbd819dda6d816ddc90079d874dcbd0075d84adcbd0066d801dca20006d872dcbf00050d480d300d750d6b0d320d21006b0d24"
 
 
-> prng1.decipher( '𝙠𝙚𝙮 🚗 ന് മി', secret, 1 );    -->  "𝖒𝖊𝖘𝖘𝖆𝖌𝖊 📪 message ക്ഷധഃഃ ഝ"
+> prng1.decipher( '𝙠𝙚𝙮 ⚷🔑⚿ ന് മി', secret, true );  -->
+"𝖒𝖊𝖘𝖘𝖆𝖌𝖊 📧 📩 💌 📬 ക്ഷധഃഃ ഝ"
+
 ```
 NOTE: Instantiating the generator with a seed, or using the seed() method, or using either of the encipher() or decipher() methods will all have the same effect of specifically setting the generator's internal seed. In the case of enciphering/deciphering, the key is the seed.
 <br>&nbsp;<br>
