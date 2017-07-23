@@ -109,6 +109,37 @@ Average 2^8295; not less than 2^40
 
 // zeroize the generator
 > prng1.reset();
+
+
+// re-seed existing generator (with a Unicode seed)
+> prng1.seed( 'बीज' );
+
+
+> prng1.random();                                 -->  0.7365402905270457
+
+
+// instantiate the generator with a Unicode seed
+> prng1 = isaacCSPRNG( '⛄⚽🙈𝓾𝓷𝓲𝓬𝓸𝓭𝓮' );
+
+
+> prng1.random();                                 -->  0.17724420339800417
+
+
+// range parameters can be given in either order
+> prng1.range( 10, -20);                          -->  7
+
+
+/ return encrypted message, in hex (both key and message contain Unicode graphemes)
+> secret = prng1.encipher( '𝙠𝙚𝙮 🚗 ന് മി', '𝖒𝖊𝖘𝖘𝖆𝖌𝖊 📪 message ക്ഷധഃഃ ഝ', 1 );  -->
+"d81cddc0d80eddb9d84eddc1d871ddc5d80bdda8d85ddda1d819ddde0079d849dcc10052005d00110007003c003d00110012006f0d3a0d150d000d560d770d6a000d0d63"
+
+
+> prng1.decipher( '𝙠𝙚𝙮 🚗 ന് മി', secret, 1 );    -->  "𝖒𝖊𝖘𝖘𝖆𝖌𝖊 📪 message ക്ഷധഃഃ ഝ"
+
+
+NOTE: Instantiating the generator with a seed, or using the seed() method, or using either of the encipher() or decipher() methods will all have the same effect of specifically setting the generator's internal seed. In the case of enciphering/deciphering, the key is the seed.
+
+
 ```
 <br>&nbsp;<br>
 
