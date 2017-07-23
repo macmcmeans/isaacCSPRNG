@@ -17,6 +17,8 @@ seed from Window.crypto values.
 There are surprisingly few JavaScript examples of this CSRPNG. Considering it's over 20 years old, and 
 has never been proven broken, one would expect more mention of it.
 
+isaacCSPRNG is emoji-friendly 😀😆😊😵, which is to say that seeds, and cipher keys & messages, are multi-byte Unicode-safe.
+
 <br>&nbsp;<br>
 Version 1.0<br>
 Author: William P. "Mac" McMeans<br>
