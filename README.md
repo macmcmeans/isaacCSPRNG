@@ -40,7 +40,7 @@ Average 2^8295; not less than 2^40
 
 
 ## Wiki:
-An incomplete <a href="https://github.com/macmcmeans//isaacCSPRNG.js/wiki">wiki is here</a>.
+An incomplete <a href="https://github.com/macmcmeans//isaacCSPRNG/wiki">wiki is here</a>.
 <br>&nbsp;<br>
 
 
