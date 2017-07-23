@@ -135,12 +135,8 @@ Average 2^8295; not less than 2^40
 
 
 > prng1.decipher( '𝙠𝙚𝙮 🚗 ന് മി', secret, 1 );    -->  "𝖒𝖊𝖘𝖘𝖆𝖌𝖊 📪 message ക്ഷധഃഃ ഝ"
-
-
-NOTE: Instantiating the generator with a seed, or using the seed() method, or using either of the encipher() or decipher() methods will all have the same effect of specifically setting the generator's internal seed. In the case of enciphering/deciphering, the key is the seed.
-
-
 ```
+NOTE: Instantiating the generator with a seed, or using the seed() method, or using either of the encipher() or decipher() methods will all have the same effect of specifically setting the generator's internal seed. In the case of enciphering/deciphering, the key is the seed.
 <br>&nbsp;<br>
 
 
