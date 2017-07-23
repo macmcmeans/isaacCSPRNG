@@ -113,22 +113,19 @@ Average 2^8295; not less than 2^40
 > prng1.reset();
 
 
-// re-seed existing generator (with a Unicode seed)
-> prng1.seed( 'बीज' );
+// re-seed existing generator (with a Gujarati phrase)
+> prng1.seed( 'પ્રિઝમ સાઇફર' );
 
 
-> prng1.random();                                 -->  0.7365402905270457
+> prng1.random();                                 -->  0.22731631994247437
 
 
-// instantiate the generator with a Unicode seed
+// re-instantiate the generator (with emoji and a script pseudo-alphabet)
 > prng1 = isaacCSPRNG( '⛄⚽🙈𝓾𝓷𝓲𝓬𝓸𝓭𝓮' );
 
 
-> prng1.random();                                 -->  0.17724420339800417
-
-
 // range parameters can be given in either order
-> prng1.range( 10, -20);                          -->  7
+> prng1.range( 10, -20);                          -->  -15
 
 
 // return encrypted message, in hex (using Malayalam, Bengali, emoji and Unicode math symbols)
