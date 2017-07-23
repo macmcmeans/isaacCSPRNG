@@ -25,8 +25,8 @@ Date: 22 JUL 2017
 
 
 ## Application:
-Use this as a secure random number generator and discrete message cipher. ISAAC also produces 
-arbitrary amounts of random bytes, or arbitrary string lengths of random ASCII values. 
+Use this to generate high-quality random numbers, and to encipher discrete messages (vernam). It also creates arbitrary
+length byte arrays and text strings. 
 
 
 ## Dependencies:
