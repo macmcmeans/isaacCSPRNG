@@ -131,7 +131,7 @@ Average 2^8295; not less than 2^40
 > prng1.range( 10, -20);                          -->  7
 
 
-// return encrypted message, in hex (uing Malayalam, Bengali, emoji and Unicode math symbols)
+// return encrypted message, in hex (using Malayalam, Bengali, emoji and Unicode math symbols)
 > secret = prng1.encipher( '𝙠𝙚𝙮 ⚷🔑⚿ എൻക്രിപ്റ്റ് ചെയ്യുക', '𝖒𝖊𝖘𝖘𝖆𝖌𝖊 📧 📩 💌 📬 প্রিজম সাইফার', true );  -->
 "d810ddabd85ddda7d804ddd8d84dddeed86adde7d813ddafd842ddbe005cd810dcd70019d81fdcbf0014d803dcb20049d85cdca2004009cf09a0099b09de09ae09fe005d099f099609a209c609fd09dc"
 
