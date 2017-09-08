@@ -5,14 +5,15 @@ Accumulate, Add, and Count) generates 32-bit random numbers. On average, cycles 
 and are guaranteed to be at least 2^40 values long. The results are uniformly distributed, unbiased,
 and unpredictable unless you know the seed.
 
-Internally, this implementation is mostly Rinquin's logic which appears to be quite similar, but not identical to,
+Internally, this implementation is largely Rinquin's logic which appears to be quite similar, but not identical to,
 Jenkins' original work (in C) which he released into the Public Domain. My contributions are a
 namespace, so that separate instances may be created, as well as helper functions to spit out random
 bytes, or random strings, of desired lengths. Going further, the int32, double and range methods expand the output options
 from Rinquin's original random and rand methods. Since ISAAC is a CSPRNG, I also added functions 
 to perform simple vernam (XOR) encryption. As an academic option, I added the ability to save and set the
-generator's internal state via JSON. Lastly, an unseeded instance will internally set itself with a default
-seed from Window.crypto values.
+generator's internal state via JSON. Lastly, unseeded instances will internally set themselves with a default
+seed from Window.crypto values. This mode would be suitable for Monte Carlo simulations where deterministic output
+is not reqwuired.
 
 There are surprisingly few JavaScript examples of this CSRPNG. Considering it's over 20 years old, and 
 has never been proven broken, one would expect more mention of it.
