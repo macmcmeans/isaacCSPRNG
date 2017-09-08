@@ -1,8 +1,8 @@
 # isaacCSPRNG
 ISAAC is a *cryptographically secure* pseudo-random number generator (CSPRNG) created by Robert J.
 Jenkins Jr., in 1996, based on RC4. Designed for speed and security, ISAAC (Indirection, Shift, 
-Accumulate, Add, and Count) generates 32-bit random numbers. Cycles are guaranteed to be at least 2^40 
-values long, and they are 2^8295 values long on average. The results are uniformly distributed, unbiased,
+Accumulate, Add, and Count) generates 32-bit random numbers. On average, cycles are are 2^8295 values long, 
+and are guaranteed to be at least 2^40 values long. The results are uniformly distributed, unbiased,
 and unpredictable unless you know the seed.
 
 Internally, this implementation is mostly Rinquin's logic which appears to be quite similar, but not identical to,
