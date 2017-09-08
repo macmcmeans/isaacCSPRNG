@@ -44,10 +44,10 @@ Average 2^8295; not less than 2^40
 ## Example usage:
 
 ```
-// return an instance of the generator initialized internally with Window.crypto
+// return an instance of the generator initialized internally with Window.crypto (Monte Carlo)
 > prng1 = isaacCSPRNG();
 
-// return an instance of the generator initialized with a specified seed
+// return an instance of the generator initialized with a specified seed (deterministic)
 > prng1 = isaacCSPRNG( 'this is a test' );
 
 
