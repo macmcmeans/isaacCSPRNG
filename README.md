@@ -59,7 +59,7 @@ Average 2^8295; not less than 2^40
 > prng1.rand();                                   -->  2052729692
 
 
-// advance the generator specified number of cycles
+// advance the generator the specified number of cycles
 > prng1.prng( 6 );
 
 
