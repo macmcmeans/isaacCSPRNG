@@ -45,7 +45,12 @@ Average 2^8295; not less than 2^40
 
 ```
 // return an instance of the generator initialized internally with Window.crypto (Monte Carlo)
-> prng1 = isaacCSPRNG();
+> prng0 = isaacCSPRNG();
+
+
+// return a 32-bit fraction in the range [0, 1]
+> prng0.random();                                 -->  some random value
+
 
 // return an instance of the generator initialized with a specified seed (deterministic)
 > prng1 = isaacCSPRNG( 'this is a test' );
