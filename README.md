@@ -87,17 +87,17 @@ Average 2^8295; not less than 2^40
 > prng1.chars( 10 );                              -->  "-D:4<qTGPR"
 
 
-// return vernam encryption of message, in hex format
+// return vernam encryption of plaintext message, in hex format
 > secret = prng1.encipher( 'key', 'message', 1 )  -->  "002900470041003b0021001e003f"
 
-// return vernam decryption of message, from hex-formatted data
+// return vernam decryption of ciphertext message, from hex-formatted data
 > prng1.decipher( 'key', secret, 1 )              -->  "message"
 
 
-// return vernam encryption of message (raw XOR)
+// return vernam encryption of plaintext message (raw XOR)
 > secret = prng1.encipher( 'key', 'message' )     -->  ")GA;!?"
 
-// return vernam decryption of message
+// return vernam decryption of ciphertext message
 > secret = prng1.encipher( 'key', secret )        -->  "message"
 
 
@@ -113,14 +113,14 @@ Average 2^8295; not less than 2^40
 > prng1.reset();
 
 
-// re-seed existing generator (with a Gujarati phrase)
+// re-seed existing generator (with a sample Gujarati phrase)
 > prng1.seed( 'પ્રિઝમ સાઇફર' );
 
 
 > prng1.random();                                 -->  0.22731631994247437
 
 
-// re-instantiate the generator (with emoji and a script pseudo-alphabet)
+// re-instantiate the generator (with sample emoji and a script pseudo-alphabet)
 > prng1 = isaacCSPRNG( '⛄⚽🙈𝓾𝓷𝓲𝓬𝓸𝓭𝓮' );
 
 
@@ -128,11 +128,12 @@ Average 2^8295; not less than 2^40
 > prng1.range( 10, -20);                          -->  -15
 
 
-// return encrypted message, in hex (using Malayalam, Bengali, emoji and Unicode math symbols)
+// return ciphertext message, in hex (using Malayalam, Bengali, emoji and Unicode math symbols)
 > secret = prng1.encipher( '𝙠𝙚𝙮 ⚷🔑⚿ എൻക്രിപ്റ്റ് ചെയ്യുക', '𝖒𝖊𝖘𝖘𝖆𝖌𝖊 📧 📩 💌 📬 প্রিজম সাইফার', true );  -->
 "d810ddabd85ddda7d804ddd8d84dddeed86adde7d813ddafd842ddbe005cd810dcd70019d81fdcbf0014d803dcb20049d85cdca2004009cf09a0099b09de09ae09fe005d099f099609a209c609fd09dc"
 
 
+// restore the plaintext
 > prng1.decipher( '𝙠𝙚𝙮 ⚷🔑⚿ എൻക്രിപ്റ്റ് ചെയ്യുക', secret, true );  -->
 "𝖒𝖊𝖘𝖘𝖆𝖌𝖊 📧 📩 💌 📬 প্রিজম সাইফার"
 
