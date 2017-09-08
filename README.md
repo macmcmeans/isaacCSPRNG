@@ -101,7 +101,7 @@ Average 2^8295; not less than 2^40
 > secret = prng1.encipher( 'key', secret )        -->  "message"
 
 
-// export an object that stores the generator's internal state
+// export an object that describes the generator's internal state
 > state = prng1.export();                         -->  JSON
 
 
