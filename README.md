@@ -79,11 +79,11 @@ Average 2^8295; not less than 2^40
 > prng1.range( 100 );                             -->  37
 
 
-// return array of random byte values
+// return an array of random bytes
 > prng1.bytes( 10 );                              -->  (10) [192, 182, 240, 253, 228, 223, 55, 207, 168, 102]
 
 
-// return string of random 7-bit ASCII characters
+// return a string of random 7-bit ASCII characters
 > prng1.chars( 10 );                              -->  "-D:4<qTGPR"
 
 
