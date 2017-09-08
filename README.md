@@ -15,7 +15,7 @@ generator's internal state via JSON. Lastly, unseeded instances will internally 
 seed from Window.crypto values. This would be suitable for Monte Carlo simulations where deterministic output
 is not required.
 
-There are surprisingly few JavaScript examples of this CSRPNG. Considering it's over 20 years old, and 
+There are surprisingly few JavaScript examples of this CSPRNG. Considering it's over 20 years old, and 
 has never been proven broken, one would expect more mention of it.
 
 isaacCSPRNG is emoji-friendly 😀😆😊😵, which is to say that seeds, and cipher keys & messages, are multi-byte Unicode-safe.
