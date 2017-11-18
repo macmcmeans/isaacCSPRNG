@@ -155,6 +155,8 @@ http://www.burtleburtle.net/bob/rand/isaacafa.html
 http://www.burtleburtle.net/bob/c/readable.c
 
 http://rosettacode.org/wiki/The_ISAAC_Cipher
+
+https://github.com/rubycon/isaac.js
 <br>&nbsp;<br>
 
 
