@@ -2,16 +2,16 @@
 ISAAC is a *cryptographically secure* pseudo-random number generator (CSPRNG) created by Robert J. Jenkins Jr., in 1996, based on RC4. Designed for speed and security, ISAAC (Indirection, Shift, Accumulate, Add, and Count) generates 32-bit random numbers. On average, cycles are are 2^8295 values long, and are guaranteed to be at least 2^40 values long. The results are uniformly distributed, unbiased,
 and unpredictable unless you know the seed.
 
-Internally, this implementation is largely Rinquin's logic which appears to be quite similar, but not identical to, Jenkins' original work (in C) which he released into the Public Domain. My contributions are a namespace, so that separate instances may be created; as well as helper functions to spit out random bytes, or random strings, of desired lengths. Going further, my int32, double and range methods expand the output options from Rinquin's original random and rand methods; and where Rinquin extends the prototype of the native String object, I chose to create separate functions instead. Since ISAAC is a CSPRNG, I also added logic to perform simple vernam (XOR) encryption. As an academic option, I added the ability to save and set the generator's internal state via JSON. Lastly, unseeded instances will internally set themselves with a default seed from Window.crypto values, which would be suitable for Monte Carlo simulations where deterministic output is not required.
+Internally, this implementation is largely Rinquin's logic which appears to be quite similar to Jenkins' original work (in C) which he released into the Public Domain. My contributions are a namespace, so that separate instances may be created; as well as helper functions to spit out random bytes, and random strings, of desired lengths. Going further, my int32, double and range methods expand the output options from the orginal random and rand methods; and where Rinquin extends the prototype of the native String object, I chose to create separate functions instead. Since ISAAC is a CSPRNG, I added logic to directly perform simple vernam (XOR) encryption. As an academic option, I created the ability to save and set the generator's internal state via JSON. Lastly, unseeded instances will internally set themselves with a default seed from Window.crypto values, which would be suitable for Monte Carlo simulations where deterministic output is not required.
 
 There are surprisingly few JavaScript examples of this CSPRNG. Considering it's over 20 years old, and has never been proven broken, one would expect more mention of it.
 
 isaacCSPRNG is emoji-friendly 😀😆😊😵, which is to say that seeds, cipher keys and plaintexts are multi-byte Unicode-safe.
 
 <br>&nbsp;<br>
-Version 1.0<br>
+Version 1.1<br>
 Author: William P. "Mac" McMeans<br>
-Date: 22 JUL 2017
+Date: 3 MAY 2018
 <br>&nbsp;<br>
 
 
