@@ -77,7 +77,7 @@ Average 2^8295; not less than 2^40
 
 
 // return a string of random 7-bit ASCII characters
-> prng1.chars( 10 );                              -->  "-D:4<qTGPR"
+> prng1.chars( 10 );                              -->  "<3%;&mK6GH"
 
 
 // return vernam encryption of plaintext message, in hex format
@@ -113,7 +113,7 @@ Average 2^8295; not less than 2^40
 > prng1.random();                                 -->  0.22731631994247437
 
 
-// re-instantiate the generator (with sample emoji and a script pseudo-alphabet)
+// re-instantiate the prng1 generator with a seed (emoji and script pseudo-alphabet)
 > prng1 = isaacCSPRNG( '⛄⚽🙈𝓾𝓷𝓲𝓬𝓸𝓭𝓮' );
 
 
@@ -126,7 +126,7 @@ Average 2^8295; not less than 2^40
 "d810ddabd85ddda7d804ddd8d84dddeed86adde7d813ddafd842ddbe005cd810dcd70019d81fdcbf0014d803dcb20049d85cdca2004009cf09a0099b09de09ae09fe005d099f099609a209c609fd09dc"
 
 
-// restore the plaintext
+// restore the plaintext (from hex input)
 > prng1.decipher( '𝙠𝙚𝙮 ⚷🔑⚿ എൻക്രിപ്റ്റ് ചെയ്യുക', secret, true );  -->
 "𝖒𝖊𝖘𝖘𝖆𝖌𝖊 📧 📩 💌 📬 প্রিজম সাইফার"
 
@@ -152,7 +152,6 @@ Google Chrome on Win 8.1 (x64)
 
 ## Version notes:
 * 1.0 - 22 JUL 2017
-
 Initial release
 <br>&nbsp;<br>
 
