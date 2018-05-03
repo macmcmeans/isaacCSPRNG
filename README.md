@@ -151,7 +151,7 @@ Google Chrome on Win 8.1 (x64)
 <br>&nbsp;<br>
 
 ## Version notes:
-* 1.0 - 22 JUL 2017
+* 1.0 - 22 JUL 2017<br>
 Initial release
 <br>&nbsp;<br>
 
