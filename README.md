@@ -151,6 +151,9 @@ Google Chrome on Win 8.1 (x64)
 <br>&nbsp;<br>
 
 ## Version notes:
+* 1.1 - 3 MAY 2018<br>
+NEW: Add method to expose generator internal state
+<br>&nbsp;<br>
 * 1.0 - 22 JUL 2017<br>
 Initial release
 <br>&nbsp;<br>
