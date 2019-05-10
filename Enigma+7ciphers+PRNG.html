@@ -1,0 +1,772 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+	</head>
+	<body>
+
+		<!--
+			Isaac CSPRNG - generate Vernam key with length equals of message length,
+			according the start value of "seed".
+		-->
+		<script src="isaacCSPRNG-1.1.js"></script>
+
+		<!-- As seed can be used the sha512 hash, not clear string -->
+		<script src="files/sha512.js"></script>
+
+		<!--	<script src="sha256.js">/*or sha256 hash*/	</script>	-->
+
+		<div align="center">
+			<img src="files/EnigmaLogo.png" align="center" style="display: inline-block;"
+title='Analog of Enigma for custom alphabets
+(dynamic reversive "shifted אתבש" + six ciphers with isaacCSPRNG)
+
+Text + seed (+ alphabet) = Text + key (+ alphabet) = Cypher;
+Cypher + seed (+ alphabet) = Cypher + key (+ alphabet) = Text;
+CSPRNG key = seed + message.length'><br>
+<img src="files/disk_cesar.png" style="width: 128px; height: 128px;" title="Shifted atbash cipher included here">
+<br>
+			<hr>
+			<font title="This can be exchanged securely, using Diffie-Hellman protocol.">1. Before encryption/decryption - set identical seed-string, as key:</font><br>
+			<input id="generate_seed" type="button" value="Generate another seed." onclick="generate_seed();">
+			<input id="seed" type="text" value="my_super_secret_seed" size="80%" onchange="change_seed(this);" title="Leave this textarea empty - to don't shuffle alphabet...">
+			<input id="set_seed" type="button" value="Set this seed, update alphabet and shuffle it." onclick="change_seed(seed_element);">
+			<br>
+			<hr>
+			2. Customize alphabet (only unique allowed symbols):<br>
+			<textarea id="alphabet" cols="150" rows="3" title="Input unique string with allowed characters for message and cyphertext." style="text-align: center;">ABCDEFGHIJKLMNOPQRSTUVWXYZ</textarea>
+			<br>
+			<!--<input id="set_alphabet" type="button" value="Set this alphabet." onclick="setAlphabet(document.getElementById('alphabet'));">-->
+			
+				<label><input type="radio" name="shuffle_or_not" id="shuffle" value="shuffle" checked="checked"> Shuffle alphabet, using CSPRNG (after set seed).</label>
+				<label title="To decrypt cyphertext, by copy and paste this with generated key value.">
+					<input type="radio" name="shuffle_or_not" id="not_shuffle" value="not_shuffle">
+					Do not shuffle alphabet
+				</label>
+			<br>
+			<input id="set_alphabet" type="button" value="Set this alphabet, update seed again and shuffle alphabet." onclick="change_seed(seed_element);"
+			title="To decrypt - just copy seed and cyphertext.">
+			<br>Shuffled alphabet for encryption/decryption:<br>
+			<pre id="shuffled_alphabet" style="border: 1px solid black;" title="Alphabet, after shuffle."></pre>
+			<br>
+			<hr>
+				4. Select cipher algorithm:
+				<br>
+				<font color="black"><b>Reversive (one button for encrypt/decrypt): </b></font>
+			| <label>Vernam 		<input type="radio" id="Vernam_mode" 				name="cypher" value="Vernam" onclick="set_cypher();"/></label>
+				<input id="special_symbol_for_XOR" value="�" maxlength="1" size="1"
+				title="Input special symbol for XOR, if code of symbol is greater than (2^N - 1).
+This symbol must not to be in the alphabet, and just will be using as marker."
+				oninput="change_special_symbol_for_XOR();"></input>
+			| <label>Shifted atbash 	<input type="radio" id="shifted_atbash_mode" 	name="cypher" value="shifted_atbash" checked="checked" onclick="set_cypher();"/></label>
+			| <label>Beaufort 		<input type="radio" id="Beaufort_mode" 				name="cypher" value="Beaufort" onclick="set_cypher();"/></label>
+			| <label>Atbash	<input type="radio" id="Atbash_mode" 						name="cypher" value="Atbash" onclick="set_cypher();"/></label>
+			|	<br><font color="black"><b> Not Reversive (two buttons for encrypt and decrypt): </b></font>
+			| <label>Tritemius 		<input type="radio" id="Tritemius_mode" 			name="cypher" value="Tritemius" onclick="set_cypher();"/></label>
+			| <label>Gronsfeld		<input type="radio" id="Gronsfeld_mode" 			name="cypher" value="Gronsfeld" onclick="set_cypher();"/> </label>
+			| <label>Vizhener 		<input type="radio" id="Vizhener_mode" 				name="cypher" value="Vizhener" onclick="set_cypher();"/></label>
+			| 	<br>
+
+			<hr>
+
+			3. Now you can encrypt message/decrypt cyphertext.
+			<table align="center">
+				<tr>
+					<td colspan="2" align="center" class="typeletter" style="background: url(files/entertext.png) #fff no-repeat bottom;">
+						<label for="textin" accesskey="t"
+			title="This field to show symbol-by-symbol encryption/decryption.
+Better to using 'Block of text' to encrypt/decrypt, if you typing text - fast."
+			>Type Letter:</label><br>
+						<input type="text" id="textin" size="3" maxlength="1" value="" style="text-align: center;"
+			title="Encrypt/decrypt symbol-by-symbol.
+
+This letter must be from alphabet.
+Any string that contains no line feed (U+000A, “LF”) or carriage return (U+000D, “CR”) characters.
+
+Else, use text input.
+">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label for="msg_in">(Clear Text/Cipher Text) In:</label><br>
+						<textarea id="msg_in" cols="30" rows="4" value="" readonly="readonly"></textarea>
+					</td>
+					<td>
+						<label for="msg_out">(CipherText/Clear Text) Out:</label><br>
+						<textarea id="msg_out" cols="30" rows="4" value="" readonly="readonly"></textarea>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center">
+						<label><input type="radio" name="show_hide_key" id="show_key" value="show_key">Show key</label> 
+						<label><input type="radio" name="show_hide_key" id="hide_key" value="hide_key" checked="checked">Hide key</label><br>
+						<label id="generated_key_label" for="generated_key_value" style="display: none;">Generated key:<br>
+							<textarea id="generated_key_value" cols="30" rows="4" value="" readonly="readonly"></textarea><br>
+						</label>
+						<input id="clear" type="button" value="Clear textareas." onclick="clear_textareas();">
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center">Input Method: 
+						<label><input type="radio" name="input_method" id="single" value="single"> Single letter</label>
+						<label><input type="radio" name="input_method" id="block" value="block" checked="checked"> Block of text</label>
+					</td>
+				</tr>
+				<tr align="center" id="blockinput">
+					<td colspan="2">
+						<textarea id="txt_in" cols="60" rows="6"></textarea><br>
+						<label><input type="radio" name="text_key" id="generate_key" value="generate_key">Generate key</label> 
+						<label><input type="radio" name="text_key" id="input_key" value="input_key" checked="checked">Input key</label><br>
+						<label id="input_key_label" for="input_key_value" style="display: none;">Key:<br>
+							<textarea id="input_key_value" cols="30" rows="4" value="" title="Import key. Also, if alphabet was been shuffled - import the shuffled alphabet, or seed with not shuffled alphabet."></textarea><br>
+						</label>
+
+						<!-- Reversive ciphers --> 
+						<input type="button" id="encryptdecrypt" 	value="Vernam Encrypt/Decrypt" onclick="progress_text();">
+						<input type="button" id="Shifted_atbash"	value="Shifted atbash Encrypt/decrypt"	onclick="progress_text( prng.param_get('algo') );">
+						<input type="button" id="Beaufort"			value="Beaufort encrypt/decrypt"		onclick="progress_text( prng.param_get('algo') );">
+						<input type="button" id="Atbash"			value="Atbash encrypt/decrypt"			onclick="progress_text( prng.param_get('algo') );">
+
+						<!--	This two buttons need for not reversive ciphers, because encipher and decipher in this case is different actions.	-->
+						<input type="button" id="tritemius_encrypt" value="Tritemius Encrypt" 				onclick="progress_text('Encipher');">
+						<input type="button" id="tritemius_decrypt" value="Tritemius Decrypt" 				onclick="progress_text('Decipher');">
+						<input type="button" id="Vizhener_encrypt"	value="Vizhener Encrypt"				onclick="progress_text('Encipher');">
+						<input type="button" id="Vizhener_decrypt"	value="Vizhener Decrypt"				onclick="progress_text('Decipher');">
+						<input type="button" id="Gronsfeld_encrypt"	value="Gronsfeld Encrypt"				onclick="progress_text('Encipher');">
+						<input type="button" id="Gronsfeld_decrypt"	value="Gronsfeld Decrypt"				onclick="progress_text('Decipher');">
+			
+			
+					</td>
+				</tr>
+			</table>
+		</div>
+	</body>
+</html>
+
+
+<script>
+
+/*
+1. 	All algorithms are working with custom alphabets, with different alphabet length's.
+2. 	Encryption/decryption symbol-by-symbol, like in Enigma is available.
+3. 	function prng.symbol(m, param, key, change_algo, change_alphabet, Vernam_XOR_symbol)
+		can working with custom key, if key will be specified.
+		alphabet, cipher algo, and Vernam_XOR_symbol - can be updated there.
+		See commented USAGE in the source code.
+	
+4. 	Shifted atbash is atbash for Vizhener cyphertext.
+		This ciphertext have reversive operation for encryption and decryption.
+		Atbash for shifted atbash - return Vizhener cyphertext. This was been tested.
+		See commented code in the source code of this script.
+		There is the table for this cipher mode, in the bottom.
+		
+5. 	Delete and backspace working, if symbol was been incorrect.
+		After this seed updated again, and all textarea enciphered then.
+*/
+	
+/*
+	//Example of using isaacCSPRNG:
+var prng1 = isaacCSPRNG();		//new object of generator
+prng1.seed('seed');				//then set specified seed
+
+//or
+//var prng1 = isaacCSPRNG('seed');	//new object of generator with specified seed.
+
+//skip N rounds by 256 bytes:
+console.log(
+				'258 bytes: ', isaacCSPRNG('seed').bytes(258)			//258 bytes from new PRNG object with previous seed.
+	,	'\n'+	'skip 1 round (256 bytes * 1 round): ', prng1.prng(1)	//skip 1 round (1 round * 256 bytes) in old defined CSPRNG object
+	,	'\n'+	'next 2 bytes: ', prng1.bytes(2)						//after skip 1 round, get next 2 bytes is equal of 257,258 bytes from previous prng.
+);
+
+//skip N bytes (prng.skip_bytes(N) - added in isaacCSPRNG-1.1.js):
+var prng1 = isaacCSPRNG('seed');	//set seed again in defined prng
+console.log(
+				'just 8 bytes: ', isaacCSPRNG('seed').bytes(8)			//get 8 bytes from new PRNG object with this seed
+	,	'\n'+	'skip 5 bytes: ', prng1.skip_bytes(5)					//skip 5 bytes in old defined CSPRNG object
+	,	'\n'+	'next 3 bytes: ', prng1.bytes(3)						//after skip 5 bytes, next 3 bytes there is equal of 6,7,8 bytes from previous PRNG.
+);
+
+//All this pseudorandom values, beginning from initialization seed,
+//can be used as vernam key for encryption/decryption.
+//isaacCSPRNG have the smallest period of 4.67 * 10^1240, according data from Wikipedia.
+//> In practice this means that the attack needs 4.67 * 10^1240 instead of 10^2466. 
+
+
+*/
+
+	var prng = isaacCSPRNG();			//Define generator object with isaacCSPRNG
+
+	var special_symbol_for_XOR_element = document.getElementById('special_symbol_for_XOR');
+	var shuffled_alphabet_pre = document.getElementById('shuffled_alphabet');
+
+	//HTML elements, as JavaScript variables:
+		//mode
+	var Shifted_atbash_mode			= 	document.getElementById('shifted_atbash_mode');
+	var Vizhener_mode				= 	document.getElementById('Vizhener_mode');
+	var Beaufort_mode				= 	document.getElementById('Beaufort_mode');
+	var Atbash_mode					= 	document.getElementById('Atbash_mode');
+	var Gronsfeld_mode				= 	document.getElementById('Gronsfeld_mode');
+	var Vernam_mode					= 	document.getElementById('Vernam_mode');
+	var Tritemius_mode				= 	document.getElementById('Tritemius_mode');
+
+		//encrypt/decrypt buttons
+	var encrypt_decrypt_button		=	document.getElementById('encryptdecrypt');
+	var Shifted_atbash_button		=	document.getElementById('Shifted_atbash');
+	var Beaufort_button				=	document.getElementById('Beaufort');
+	var Atbash_button				=	document.getElementById('Atbash');
+	var Vizhener_encrypt_button		=	document.getElementById('Vizhener_encrypt');
+	var Vizhener_decrypt_button		=	document.getElementById('Vizhener_decrypt');
+	var Gronsfeld_encrypt_button	=	document.getElementById('Gronsfeld_encrypt');
+	var Gronsfeld_decrypt_button	=	document.getElementById('Gronsfeld_decrypt');
+	var tritemius_encrypt_button	=	document.getElementById('tritemius_encrypt');
+	var tritemius_decrypt_button	=	document.getElementById('tritemius_decrypt');
+
+	//show-hide buttons and div, onchange cipher mode
+	function set_cypher(){
+
+		encrypt_decrypt_button.style.display			= 'none';
+		Shifted_atbash_button.style.display				= 'none';
+		Beaufort_button.style.display					= 'none';
+		Atbash_button.style.display						= 'none';
+		Vizhener_encrypt_button.style.display			= 'none';
+		Vizhener_decrypt_button.style.display			= 'none';
+		Gronsfeld_encrypt_button.style.display			= 'none';
+		Gronsfeld_decrypt_button.style.display			= 'none';
+		tritemius_encrypt_button.style.display			= 'none';
+		tritemius_decrypt_button.style.display			= 'none';
+		special_symbol_for_XOR_element.style.display 	= 'none';
+
+		//Then enable selected	
+		if(Shifted_atbash_mode.checked){
+		//	console.log('shifted_atbash');
+			Shifted_atbash_button.style.display 			= 'inline-block';
+			progress_text(undefined, undefined, undefined, undefined, 'shifted_atbash', undefined, undefined);
+		}
+		else if(Vernam_mode.checked){
+		//	console.log('Vizhener');
+			encrypt_decrypt_button.style.display 			= 'inline-block';
+			encrypt_decrypt_button.style.display 			= 'inline-block';
+			special_symbol_for_XOR_element.style.display 	= 'inline-block';
+			progress_text(undefined, undefined, undefined, undefined, 'vernam', undefined, undefined);
+		}
+		else if(Vizhener_mode.checked){
+		//	console.log('Vizhener');
+			Vizhener_encrypt_button.style.display 			= 'inline-block';
+			Vizhener_decrypt_button.style.display 			= 'inline-block';
+			progress_text(undefined, undefined, undefined, undefined, 'vizhener', undefined, undefined);
+		}
+		else if(Beaufort_mode.checked){
+		//	console.log('Beaufort');
+			Beaufort_button.style.display					= 'inline-block';
+			progress_text(undefined, undefined, undefined, undefined, 'beaufort', undefined, undefined);
+		}
+		else if(Atbash_mode.checked){
+		//	console.log('Gronsfeld');
+			Atbash_button.style.display						= 'inline-block';
+			progress_text(undefined, undefined, undefined, undefined, 'atbash', undefined, undefined);
+		}
+		else if(Gronsfeld_mode.checked){
+		//	console.log('Gronsfeld');
+			Gronsfeld_encrypt_button.style.display			= 'inline-block';
+			Gronsfeld_decrypt_button.style.display			= 'inline-block';
+			progress_text(undefined, undefined, undefined, undefined, 'gronsfeld', undefined, undefined);
+		}
+		else if(Tritemius_mode.checked){
+		//	console.log('Gronsfeld');
+			tritemius_encrypt_button.style.display			= 'inline-block';
+			tritemius_decrypt_button.style.display			= 'inline-block';
+			progress_text(undefined, undefined, undefined, undefined, 'tritemius', undefined, undefined);
+		}
+
+		//recalculate text in textareas:
+		setTimeout(
+			function(){
+				progress_text( prng.param_get('algo'), true );		
+			},
+			500
+		);
+
+	}
+	set_cypher();	//run onload page.
+
+
+//function to change special symbol from input - to custom symbol
+function change_special_symbol_for_XOR(){
+	if(alphabet.indexOf(special_symbol_for_XOR_element.value)===-1){
+		progress_text(undefined, undefined, undefined, undefined, undefined, undefined, special_symbol_for_XOR_element.value);
+		show_hide_border(special_symbol_for_XOR_element, "green", border_size);
+	}else{
+		progress_text(undefined, undefined, undefined, undefined, undefined, undefined, '');		//set default special symbol
+		show_hide_border(special_symbol_for_XOR_element, "red", border_size);
+		if(special_symbol_for_XOR_element.value !== ''){
+			setTimeout(
+				function(){
+					special_symbol_for_XOR_element.value = '�';
+				}, 500
+			)
+		}
+	}
+}
+
+
+	
+
+	//function to shuffle alphabet, after set seed...
+	/**
+	* Shuffles array in place.
+	* @param {Array} a items An array containing the items.
+	*/
+	function shuffle(a) {
+		if(seed_element.value===''){return a;}
+		var j, x, i;
+		for (i = a.length - 1; i > 0; i--) {
+			j = prng.range(0, a.length-1);					//deterministic shuffle, after seeding.
+			x = a[i];
+			a[i] = a[j];
+			a[j] = x;
+		}
+		return a;
+	}
+	//Usage:
+	//var myArray = ['1','2','3','4','5','6','7','8','9'];
+	//console.log(myArray);
+	//shuffle(myArray);
+	//console.log(myArray);
+
+	
+	//function to show-hide boder for textareas.
+	var border_size = 2;
+	
+	function show_hide_border(element, color, px){
+		element.style.border = px+"px solid "+color;
+		setTimeout(
+			function(){
+				element.style.border = "";
+			}
+			, 500
+		);
+	}
+	
+	var not_shuffled_alphabet;
+	var shuffled_alphabet;
+
+	function change_alphabet_to_not_shuffled(){
+		shuffled_alphabet = alphabet;
+		progress_text(undefined, undefined, undefined, undefined, undefined, not_shuffled_alphabet, undefined);
+	}
+	
+	var shuffle_alphabet = document.getElementById('shuffle');
+	var not_shuffle = document.getElementById('not_shuffle');
+
+	//function to set specified alphabet
+	function setAlphabet(element){
+		var symbols = element.value;				//get alphabet string
+		not_shuffled_alphabet = symbols;			//save not shuffled alphabet
+		if(shuffle_alphabet.checked){
+			symbols = symbols.split('');				//to array
+			shuffle(symbols);							//shuffle it
+			symbols = symbols.join('');					//convert to string
+		}
+		progress_text('', '', '', '', '', symbols);
+		shuffled_alphabet_pre.innerHTML = prng.param_set('alphabet', symbols);
+		show_hide_border(element, "green", border_size);
+	}
+
+	//textareas elements, as variables:
+	var method_single = document.getElementById('single');
+	var method_block = document.getElementById('block');
+	
+	var startbtn = document.getElementById('startbtn');
+	var txt_in = document.getElementById('txt_in');
+	var init_txtinput = document.getElementById('textin');
+	var msg_in = document.getElementById('msg_in');
+	var msg_out = document.getElementById('msg_out');
+	var seed_element = document.getElementById('seed');
+
+	function generate_seed(){
+		//fill seed value, depending current unix timestamp
+		seed_element.value = (new Date())+(new Date().getTime());	//current date and time + unix timestamp - as seed string.
+	}
+	generate_seed();
+	
+	//function to set seed in generator
+	function change_seed(seed_source_element){
+		var sha512_hash = sha512(seed_source_element.value);
+		prng.seed(sha512_hash);								//set seed
+		//console.log("New seed updated.");
+		setAlphabet(document.getElementById('alphabet'));	//set alphabet and shuffle this.
+		show_hide_border(seed_source_element, "green", border_size);
+	}
+
+	//clear filled textareas
+	function clear_textareas(){
+		msg_in.value 				= 	'';
+		msg_out.value 				= 	'';
+		generated_key_value.value 	=	'';
+		txt_in.value 				=	'';
+		input_key_value.value		=	'';
+		change_seed(seed_element);
+	}
+
+	//select method to input text
+		//symbol-by-symbol
+    method_single.onclick = function() {
+        document.getElementById('blockinput').style.display = "none";
+		show_hide_border(init_txtinput, "blue", border_size);
+    }
+		//or as text block
+    method_block.onclick = function() {
+        document.getElementById('blockinput').style.display = "";
+		show_hide_border(txt_in, "blue", border_size);
+    }
+	
+	//textareas elements, as variables:
+	var show_key = document.getElementById('show_key');
+	var hide_key = document.getElementById('hide_key');
+	var generated_key_label = document.getElementById('generated_key_label');
+	var generated_key_value = document.getElementById('generated_key_value');
+	
+	//show generated key
+    show_key.onclick = function() {
+        document.getElementById('generated_key_label').style.display = "block";
+		show_hide_border(generated_key_value, "blue", border_size);
+    }
+	//or hide this
+    hide_key.onclick = function() {
+        document.getElementById('generated_key_label').style.display = "none";
+    }
+	show_key.click();	//show, by default
+	
+	//textareas elements, as variables:
+	var generate_key = document.getElementById('generate_key');
+	var input_key = document.getElementById('input_key');
+	var input_key_label = document.getElementById('input_key_label');
+	var input_key_value = document.getElementById('input_key_value');
+	
+		//generate key, using CSPRNG
+    generate_key.onclick = function() {
+        document.getElementById('input_key_label').style.display = "none";
+    }
+		//or input this in the text block
+    input_key.onclick = function() {
+        document.getElementById('input_key_label').style.display = "block";
+		show_hide_border(input_key_value, "blue", border_size);
+    }
+	input_key.click();	//input by default. If value is empty - generate then.
+
+	var alphabet = prng.param_get('alphabet');	//get alphabet from variable, inside isaacCSPRNG.js
+	
+	
+	//progress one symbol
+    init_txtinput.onkeyup = function() {
+		if(	alphabet.indexOf(this.value)	===	-1	){
+			this.value = "";
+			var elem = this;
+			show_hide_border(elem, "red", border_size);
+		}
+		for (i = 0; i < this.value.length; i++){
+			msg_in.value 	+= 	this.value;
+			var result = prng.symbol(this.value);
+			msg_out.value 				+= 	result[0];	//cipher
+			generated_key_value.value	+= 	result[1];	//key
+		}
+		this.value = "";
+		this.focus();
+	}
+
+	//remove symbol on press Backspace or Delete buttons
+	init_txtinput.onkeydown = function() {
+		var key = event.keyCode || event.charCode;
+		if( key == 8 || key == 46 ) {	//if backspace or delete key down
+			//remove one last char in three textareas: msg_in, msg_out, generated_key_value
+			msg_in.value = msg_in
+									.value
+									//.substring(0, msg_in.value.length-1)
+									.slice(0, msg_in.value.length-1)
+			;
+			msg_out.value = msg_out
+									.value
+									.substring(0, msg_out.value.length-1)
+									//.slice(0, msg_out.value.length-1)
+			;
+			generated_key_value.value = generated_key_value
+									.value
+									.substring(0, generated_key_value.value.length-1)
+									//.slice(0, msg_out.value.length-1)
+			;
+			
+			change_seed(seed_element);							//set previous seed again
+			prng.skip_bytes(msg_in.value.length);				//skip generated bytes - up to new message length
+		}
+	};
+
+	//fill textarea by this value;
+	document.getElementById('alphabet').value = alphabet;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+//progress text run strings encryption/decryption
+	function progress_text(param, recalculate, text_cypher, key, change_algo, change_alphabet, Vernam_XOR_symbol){
+		if(typeof change_algo !== 'undefined' || typeof change_alphabet !== 'undefined' || typeof Vernam_XOR_symbol !== 'undefined'){
+			return prng.symbol(undefined, undefined, undefined, change_algo, change_alphabet, Vernam_XOR_symbol);
+		}
+		if(typeof key === 'undefined'){
+			key = document.getElementById('input_key_value').value;
+			key = (typeof key === 'undefined') ? undefined : key;
+		}
+		if(recalculate === true){
+			change_seed(seed_element);
+		}
+		var src = (typeof text_cypher === 'undefined')
+						?	( ( recalculate === true ) ? msg_in.value : txt_in.value )
+						:	text_cypher
+		;
+		for(i=0; i<src.length; i++){
+			if(
+					(alphabet.indexOf(src[i]) === -1)
+				&& 	!(
+							(prng.param_get('algo') === 'vernam')
+						&&	(src[i] === prng.param_get('special_symbol_for_XOR'))
+					)
+			){
+				show_hide_border(txt_in, "red", border_size);
+				return;
+			}
+		}
+		//var result = progress_string(param, src, key, change_algo, change_alphabet, Vernam_XOR_symbol);
+		var result = prng.progress_string(param, src, key, change_algo, change_alphabet, Vernam_XOR_symbol);
+		
+		msg_in.value 				= 	src;
+		msg_out.value 				= 	result[0];
+		generated_key_value.value 	= 	(prng.param_get('algo')==='atbash')										//if just atbash
+											?
+												(
+													(shuffle_alphabet.checked)					//and if alphabet shuffled
+														? 'Alphabet shuffled, this is not key'	//return this
+														: 'Atbash have not key'					//or empty key if not shuffled.
+												)
+											: result[1]											//else - key
+		;
+		return result[0];
+	}
+
+/*
+setTimeout(
+	function(){
+		//update_alphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		prng.param_set('alphabet', "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		
+		//algo = 'shifted_atbash';
+		//console.log('cipher text: ', progress_text('Encipher', false, "ATTACKATDAWN", "LEMONLEMONLE", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+		
+		
+		
+		
+		//console.log('cipher text: ', progress_text('shifted_atbash', false, "ATTACKATDAWN", "LEMONLEMONLE"));
+		
+		//console.log('cipher text: ', progress_text('vernam', false, "ATTACKATDAWN", "LEMONLEMONLE"));
+		
+		//algo = 'vernam';
+		//console.log('cipher text: ', progress_text(algo, false, "ATTACKATDAWN", "LEMONLEMONLE"));
+
+		prng.progress_string(undefined, undefined, undefined, 'shifted_atbash');
+		console.log('cipher text: ', progress_text(prng.param_get('algo'), false, "ATTACKATDAWN", "LEMONLEMONLE"));
+
+		//change_seed(seed_element);
+	}
+	,1000
+);
+*/
+
+/*
+
+	//TESTS
+		//just uncomment test(); in isaacCSPRNG.js and see console.log( F12 button );
+
+*/
+
+/*
+	//Generate the table for reversive shifted_atbash cipher algorithm:
+
+prng.param_set('alphabet', 	'ABCDEFGHIJKLMNOPQRSTUVWXYZ');	//set alphabet
+prng.param_set('algo', 		'shifted_atbash');				//set cipher mode to shifted_atbash
+var alphabet = prng.param_get('alphabet');
+
+var html = '<h1>Shifted_atbash table:</h1><table>';
+for(i = 0; i<=alphabet.length; i++){
+	html += '<tr>';
+	if(i===0){html += '<td>\\</td>';}
+	
+	for (j = 0; j<=alphabet.length; j++){
+		if(j===0){
+			if(i===0){continue;}
+			else{
+				html += '<td style="border: 2px solid red;">'+
+					(alphabet[(i-1)])
+				+'</td>';
+			}
+		}
+		
+		if ( i !== 0 ){ if( j === alphabet.length ){ continue; } }
+		
+		var cyf = prng.symbol(alphabet[i-1], undefined, j)[0];
+		
+		html += '<td'+
+		
+					(
+						(i==0)
+							?' style= "border: 2px solid green;">'+
+								(alphabet[((i+j-1)%alphabet.length)])
+							:'>'+
+					cyf
+					);
+		html += '</td>';		
+	}
+	html += '</tr>';
+}
+html += '</table><br>';
+shifted_atbash = false;		
+document.write(html);		//show table for shifted atbash.
+
+
+//	Atbash encrypt/decrypt table
+//	|	A|	B|	C|	D|	E|	F|	G|	H|	I|	J|	K|	L|	M|	N|	O|	P|	Q|	R|	S|	T|	U|	V|	W|	X|	Y|	Z|
+//	|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|
+//
+//	Shifted Atbash encrypt/decrypt table
+//	|	\|	A|	B|	C|	D|	E|	F|	G|	H|	I|	J|	K|	L|	M|	N|	O|	P|	Q|	R|	S|	T|	U|	V|	W|	X|	Y|	Z|
+//	______________________________________________________________________________________________________________
+//	|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|
+//	|	B|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|
+//	|	C|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|
+//	|	D|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|
+//	|	E|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|
+//	|	F|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|
+//	|	G|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|
+//	|	H|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|
+//	|	I|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|
+//	|	J|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|
+//	|	K|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|
+//	|	L|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|
+//	|	M|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|
+//	|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|
+//	|	O|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|
+//	|	P|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|
+//	|	Q|	J|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|
+//	|	R|	I|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|
+//	|	S|	H|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|
+//	|	T|	G|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|
+//	|	U|	F|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|
+//	|	V|	E|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|
+//	|	W|	D|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|
+//	|	X|	C|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|
+//	|	Y|	B|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|
+//	|	Z|	A|	Z|	Y|	X|	W|	V|	U|	T|	S|	R|	Q|	P|	O|	N|	M|	L|	K|	J|	I|	H|	G|	F|	E|	D|	C|	B|
+
+
+
+
+var a = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; //set custom alphabet
+
+//fast "shifted atbash" function
+//reversive encrypt/decrypt one symbol of message/cyphertext - m, using symbol of key - k.
+function shifted_atbash_(m, k){
+	return a[ ( ( ( a.length * 2 ) - ( ( a.indexOf( m ) + a.indexOf( k ) ) + 1 ) ) % a.length ) ];
+}
+
+var m = "F";
+var k = "U";
+//Shifted atbash
+var cypher 		= 	shifted_atbash_(m, k);
+var restore_m	=	shifted_atbash_(cypher, k);	//decryption - is again encryption, like for Vernam cipher
+console.log('\ncypher', cypher, '\nrestore_m', restore_m, '\nEquals? (restore_m === m): ', (restore_m === m) );
+//cypher = 	"A"	= F (line/colunm) + U (column/line)			= A (letter at intersection)
+//				= А (line/colunm) + U (letter inside)		= A (column/line)
+
+//	As you can see, encryption and decryption is reversive and... Commutative!
+//	F + U = A;
+//	U + F = A;
+//	No any difference where is the key of message symbol, no any difference where is cyphertext symbol and where is key symbol.
+//	This cipher is commutative, like Vernam cipher with XOR operation, but... This is usable for CUSTOM ALPHABETS with any length.
+//	Atbash for cyphertext of this cipher return not reversive Vizhener cipher:
+
+//Test
+//ATTACKATDAWN
+//LEMONLEMONLE
+//Encrypt
+console.log('\n\n\nShifted_atbash - Encrypt');
+console.log('cypher', shifted_atbash_("A", "L"));
+console.log('cypher', shifted_atbash_("T", "E"));
+console.log('cypher', shifted_atbash_("T", "M"));
+console.log('cypher', shifted_atbash_("A", "O"));
+console.log('cypher', shifted_atbash_("C", "N"));
+console.log('cypher', shifted_atbash_("K", "L"));
+console.log('cypher', shifted_atbash_("A", "E"));
+console.log('cypher', shifted_atbash_("T", "M"));
+console.log('cypher', shifted_atbash_("D", "O"));
+console.log('cypher', shifted_atbash_("A", "N"));
+console.log('cypher', shifted_atbash_("W", "L"));
+console.log('cypher', shifted_atbash_("N", "E"));
+
+//Decrypt
+console.log('\n\n\nShifted_atbash - Decrypt');
+console.log('decrypted', shifted_atbash_("O", "L"));
+console.log('decrypted', shifted_atbash_("C", "E"));
+console.log('decrypted', shifted_atbash_("U", "M"));
+console.log('decrypted', shifted_atbash_("L", "O"));
+console.log('decrypted', shifted_atbash_("K", "N"));
+console.log('decrypted', shifted_atbash_("E", "L"));
+console.log('decrypted', shifted_atbash_("V", "E"));
+console.log('decrypted', shifted_atbash_("U", "M"));
+console.log('decrypted', shifted_atbash_("I", "O"));
+console.log('decrypted', shifted_atbash_("M", "N"));
+console.log('decrypted', shifted_atbash_("S", "L"));
+console.log('decrypted', shifted_atbash_("I", "E"));
+
+
+//atbash for cyphertext - return vizhener cipher:
+//shifted_atbash cipher - to vizhener cipher
+console.log('\n\n\nShifted_atbash - to Vizhener Cipher (Just atbash for shifted_atbash ciphertext)');
+console.log('vizhener', a[a.length-1-a.indexOf( shifted_atbash_("A", "L") )] );
+console.log('vizhener', a[a.length-1-a.indexOf( shifted_atbash_("T", "E") )] );
+console.log('vizhener', a[a.length-1-a.indexOf( shifted_atbash_("T", "M") )] );
+console.log('vizhener', a[a.length-1-a.indexOf( shifted_atbash_("A", "O") )] );
+console.log('vizhener', a[a.length-1-a.indexOf( shifted_atbash_("C", "N") )] );
+console.log('vizhener', a[a.length-1-a.indexOf( shifted_atbash_("K", "L") )] );
+console.log('vizhener', a[a.length-1-a.indexOf( shifted_atbash_("A", "E") )] );
+console.log('vizhener', a[a.length-1-a.indexOf( shifted_atbash_("T", "M") )] );
+console.log('vizhener', a[a.length-1-a.indexOf( shifted_atbash_("D", "O") )] );
+console.log('vizhener', a[a.length-1-a.indexOf( shifted_atbash_("A", "N") )] );
+console.log('vizhener', a[a.length-1-a.indexOf( shifted_atbash_("W", "L") )] );
+console.log('vizhener', a[a.length-1-a.indexOf( shifted_atbash_("N", "E") )] );
+
+//atbash for vizhener cyphertext - return again shifted_atbash cipher:
+//vizhener cipher - to shifted_atbash cipher
+console.log('\n\n\nVizhener cipher - to Shifted_atbash (Just atbash for vizhener ciphertext)');
+console.log('cypher', a[a.length-1-a.indexOf( a[a.length-1-a.indexOf( shifted_atbash_("A", "L") )] )] );
+console.log('cypher', a[a.length-1-a.indexOf( a[a.length-1-a.indexOf( shifted_atbash_("T", "E") )] )] );
+console.log('cypher', a[a.length-1-a.indexOf( a[a.length-1-a.indexOf( shifted_atbash_("T", "M") )] )] );
+console.log('cypher', a[a.length-1-a.indexOf( a[a.length-1-a.indexOf( shifted_atbash_("A", "O") )] )] );
+console.log('cypher', a[a.length-1-a.indexOf( a[a.length-1-a.indexOf( shifted_atbash_("C", "N") )] )] );
+console.log('cypher', a[a.length-1-a.indexOf( a[a.length-1-a.indexOf( shifted_atbash_("K", "L") )] )] );
+console.log('cypher', a[a.length-1-a.indexOf( a[a.length-1-a.indexOf( shifted_atbash_("A", "E") )] )] );
+console.log('cypher', a[a.length-1-a.indexOf( a[a.length-1-a.indexOf( shifted_atbash_("T", "M") )] )] );
+console.log('cypher', a[a.length-1-a.indexOf( a[a.length-1-a.indexOf( shifted_atbash_("D", "O") )] )] );
+console.log('cypher', a[a.length-1-a.indexOf( a[a.length-1-a.indexOf( shifted_atbash_("A", "N") )] )] );
+console.log('cypher', a[a.length-1-a.indexOf( a[a.length-1-a.indexOf( shifted_atbash_("W", "L") )] )] );
+console.log('cypher', a[a.length-1-a.indexOf( a[a.length-1-a.indexOf( shifted_atbash_("N", "E") )] )] );
+
+*/
+
+
+</script>
