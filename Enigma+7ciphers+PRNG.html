@@ -476,7 +476,7 @@ function change_special_symbol_for_XOR(){
 	}
 
 	//remove symbol on press Backspace or Delete buttons
-	init_txtinput.onkeydown = function() {
+	init_txtinput.onkeydown = function(event) {
 		var key = event.keyCode || event.charCode;
 		if( key == 8 || key == 46 ) {	//if backspace or delete key down
 			//remove one last char in three textareas: msg_in, msg_out, generated_key_value
