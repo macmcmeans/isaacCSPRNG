@@ -143,6 +143,8 @@ http://www.burtleburtle.net/bob/rand/isaacafa.html
 http://www.burtleburtle.net/bob/c/readable.c
 
 http://rosettacode.org/wiki/The_ISAAC_Cipher
+
+https://crypto.stackexchange.com/questions/42907/why-is-isaac-not-a-pseudo-random-number-generator
 <br>&nbsp;<br>
 
 
