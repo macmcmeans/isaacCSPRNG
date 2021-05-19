@@ -1,5 +1,5 @@
 # isaacCSPRNG
-ISAAC is a *cryptographically secure* pseudo-random number generator (CSPRNG) created by Robert J. Jenkins Jr., in 1996, based on RC4. Designed for speed and security, ISAAC (Indirection, Shift, Accumulate, Add, and Count) generates 32-bit random numbers. On average, cycles are 2^8295 values long, and are guaranteed to be at least 2^40 values long. The results are uniformly distributed, unbiased, and unpredictable unless you know the seed.
+[ISAAC](https://en.wikipedia.org/wiki/ISAAC_(cipher)) is a *cryptographically secure* pseudo-random number generator ([CSPRNG](https://en.wikipedia.org/wiki/Cryptographically-secure_pseudorandom_number_generator)) created by [Robert J. Jenkins Jr.](https://en.wikipedia.org/wiki/Robert_John_Jenkins_Junior), in 1996, based on [RC4](https://en.wikipedia.org/wiki/RC4). Designed for speed and security, ISAAC (Indirection, Shift, Accumulate, Add, and Count) generates 32-bit random numbers. On average, cycles are 2<sup>8295</sup> values long, and are guaranteed to be at least 2<sup>40</sup> values long. The results are uniformly distributed, unbiased, and unpredictable unless you know the seed.
 
 Internally, my implementation here is largely Rinquin's logic which appears to be quite similar to Jenkins' original work (in C) which he released into the Public Domain. My contributions are a namespace, so that separate instances may be created; as well as helper functions to spit out random bytes, and random strings, of desired lengths. Going further, my *int32*, *double* and *range* methods expand the output options from the orginal *random* and *rand* methods; and where Rinquin extends the String object, my version uses separate functions in lieu of extending the native prototype. Since ISAAC is a CSPRNG, I added logic to directly perform simple vernam (XOR) encryption. As an academic option, I created the ability to save and set the generator's internal state via JSON. Lastly, unseeded instances will internally set themselves with a default seed from Window.crypto values, which would be suitable for Monte Carlo simulations where deterministic output is not required.
 
@@ -24,7 +24,7 @@ None.
 
 
 ## Period:
-Average 2^8295; not less than 2^40
+Average 2<sup>8295</sup> (not less than 2<sup>40</sup>)
 <br>&nbsp;<br>
 
 
@@ -161,6 +161,10 @@ Initial release
 
 ## Related resources:
 https://github.com/bryc/code/blob/master/jshash/PRNGs.md
+<br>&nbsp;<br>
+
+## Academic papers:
+https://eprint.iacr.org/2006/438.pdf
 <br>&nbsp;<br>
 
 # License (BSD)
