@@ -150,7 +150,7 @@ https://crypto.stackexchange.com/questions/42907/why-is-isaac-not-a-pseudo-rando
 
 
 ## Tested:
-Google Chrome on Win 8.1 (x64)
+Google Chrome on Win 8.1 (x64)<br>
 Google Chrome on Win 10 (x64)
 <br>&nbsp;<br>
 
