@@ -161,10 +161,6 @@ NEW: Add method to expose generator internal state
 Initial release
 <br>&nbsp;<br>
 
-## Related resources:
-https://github.com/bryc/code/blob/master/jshash/PRNGs.md
-<br>&nbsp;<br>
-
 ## Academic papers:
 https://eprint.iacr.org/2006/438.pdf
 <br>&nbsp;<br>
