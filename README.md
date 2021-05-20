@@ -139,11 +139,11 @@ NOTE: Specifiying a seed on generator instantiation, or using the seed() method,
 ## REFS:
 https://github.com/rubycon/isaac.js
 
-http://www.burtleburtle.net/bob/rand/isaacafa.html
+[http://www.burtleburtle.net/bob/rand/isaacafa.html](https://archive.is/sysF)
 
-http://www.burtleburtle.net/bob/c/readable.c
+[http://www.burtleburtle.net/bob/c/readable.c](https://archive.ph/5Mzx2)
 
-http://rosettacode.org/wiki/The_ISAAC_Cipher
+[http://rosettacode.org/wiki/The_ISAAC_Cipher](https://archive.ph/WEctB)
 
 https://crypto.stackexchange.com/questions/42907/why-is-isaac-not-a-pseudo-random-number-generator
 <br>&nbsp;<br>
