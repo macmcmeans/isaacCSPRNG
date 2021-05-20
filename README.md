@@ -5,7 +5,7 @@ Internally, my implementation here is largely Rinquin's logic which appears to b
 
 There are surprisingly few JavaScript examples of this CSPRNG. Considering it's over 20 years old, and has never been proven broken, one would expect more mention of it.
 
-isaacCSPRNG is emoji-friendly 😀😆😊😵, which is to say that seeds, cipher keys and plaintexts are multi-byte Unicode-safe.
+isaacCSPRNG is emoji-friendly 🧐😲😊👍, which is to say that seeds, cipher keys and plaintexts are multi-byte Unicode-safe.
 
 <br>&nbsp;<br>
 Version 1.1<br>
