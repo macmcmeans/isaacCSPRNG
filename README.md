@@ -135,7 +135,7 @@ NOTE: Specifiying a seed on generator instantiation, or using the seed() method,
 
 
 ## REFS:
-https://github.com/rubycon/isaac.js/blob/master/isaac.js
+https://github.com/rubycon/isaac.js
 
 http://www.burtleburtle.net/bob/rand/isaacafa.html
 
