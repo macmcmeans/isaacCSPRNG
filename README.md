@@ -156,10 +156,10 @@ Google Chrome on Win 10 (x64)
 
 ## Version notes:
 * 1.1 - 3 MAY 2018<br>
-NEW: Add method to expose generator internal state
+``feature`` Expose generator internal state, set/get
 <br>&nbsp;<br>
 * 1.0 - 22 JUL 2017<br>
-Initial release
+``release`` Initial release
 <br>&nbsp;<br>
 
 ## Academic papers:
