@@ -17,7 +17,7 @@ Date: 3 MAY 2018
 
 
 ## Application:
-Use this to generate high-quality random numbers, and to encipher discrete messages (vernam). It also creates arbitrary length byte arrays and text strings. Note: This generator is cryptographically secure. If you don't need a secure generator then consider <a href="https://github.com/macmcmeans/aleaPRNG">ALEA</a> for your application, an RNG created by Johannes Baagøe having excellent statistical properties.
+Use this to produce high-quality random numbers, and to encipher discrete messages and streams. You may also create arbitrary length byte arrays and text strings of random composition. Note: This generator is cryptographically secure. If you don't need a secure generator then consider <a href="https://github.com/macmcmeans/aleaPRNG">ALEA</a> for your application, an RNG created by Johannes Baagøe having excellent statistical properties.
 
 
 ## Dependencies:
