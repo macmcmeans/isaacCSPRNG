@@ -1,0 +1,323 @@
+﻿<html>
+	<meta charset="utf-8">
+
+<div>
+	<h2>
+		Шифрование:
+		<input value="Vernam Encrypt" type="submit" onclick="encrypt_base64()"></input>
+	</h2>
+		Исходное сообщение:<br> <textarea id="message" type="text" rows="3" cols="100">Глянь в исходный код.</textarea>
+		<div id="encrypted_base64" title="Зашифрованное сообщение. Каждый раз - другие данные, при шифровании."></div>
+
+	<hr>
+
+	<h2>
+		Дешифрование base64-шифротекста:
+		<input value="Vernam Decrypt" type="submit" onclick="decrypt_base64()"></input>
+	</h2>
+		<div>
+			Часть(1,2):
+			<input id="base64_encrypted_part1" type="text" size="100" title="Одна из частей шифротекста, или полный шифротекст."></input>
+		</div>
+		<div style="display: inline-block;">
+			Часть(2,1):
+			<input id="base64_encrypted_part2" type="text" size="100" title="Оставь это поле пустым, если в первом поле - полный шифротекст."></input>
+		</div>
+		<div id="decrypted_base64" title="Результат дешифровки."></div>
+	<hr>
+</div>
+
+<br><div>Алсо, Шифр Вернама - сыпется в консоли.</div>
+
+<script>
+//функции, необходимые для работы
+
+// XOR двух строк произвольной длины
+function XOR_two_strings(str1, str2){
+	var out = "";
+	var max = Math.max(str1.length, str2.length);	//максимальная длина
+	var min = Math.min(str1.length, str2.length);	//минимальная
+	
+	for( var i = 0; i < max; i++)  {
+		out += String.fromCharCode(
+			str1.charCodeAt( (i>str1.length) ?(i%str2.length) :i ) ^ str2.charCodeAt( (i>str2.length) ?(i%str1.length) :i )
+		);
+	}
+	//урезание '\0' в конце, когда дешифрованное сообщение имеет меньшую key.length.
+	out = out.split(''); for( var i = out.length-1; i < min; i--){if(out[i]=='\0') out.pop(1); else break;} out = out.join('');
+	return out;
+}
+
+
+//Возвращает массив или строку символов из ArrayBuffer
+function buf2hex(buffer) { // buffer is an ArrayBuffer
+  return Array.prototype.map.call(new Uint8Array(buffer), x = function(x){return String.fromCharCode(x);})
+	//;				//	массив
+	.join('');		//	или строка
+}
+
+//Генерирует массив байт определённой длины, используя window.crypto.getRandomValues. На выходе - arraybuffer
+function csRNG(length){
+	return buf2hex(window.crypto.getRandomValues(new Uint8Array(length)).buffer);
+}
+//console.log(csRNG(5));	//test
+		
+//Для предотвращения атаки на csRNG (в случае использования PRNG) - массив с шифром и ключём перемешивается.
+//Ведь известные символы исходного собщения, позволяют сделать следующее:
+//key = cypher XOR message
+//key = message XOR cypher
+//Если фрагмент ключа известен, то пространстве ключей - может быть найден и весь ключ,
+//а также взломан алгоритм некриптостойкого PRNG.
+
+//Функция тусует символы шифра и ключа в строке шифротекста.
+function shuffle_cypher(s){
+	s = s.split('');																	//строку - в массив символов
+	//console.log('\n', 's before shuffle:', s);										//Показать входной массив
+	for(i=0, j=0; (i+j)<(s.length/2)+8;i+=8){
+		var random_byte = window.crypto.getRandomValues(new Uint8Array(1))[0];			//один байт
+		for(j=0; j<8 || (i+j)<(s.length/2); j++){										//для восьми бит в байте
+			var x = i+j;
+			var y = x+s.length/2
+			var random_bit = (random_byte>>j)%2;										//один бит из байта
+			if(random_bit==1){
+				//console.log(x, y, 'change');												//если изменено
+				//XOR chars directly, without hex
+				s[x] = String.fromCharCode(s[y].charCodeAt(0) ^ s[x].charCodeAt(0));	//временное значение
+				s[y] = String.fromCharCode(s[x].charCodeAt(0) ^ s[y].charCodeAt(0));	//символ ключа -> в символ шифра
+				s[x] = String.fromCharCode(s[y].charCodeAt(0) ^ s[x].charCodeAt(0));	//символ шифра -> в символ ключа
+			}//else console.log(x, y, 'no change');											//если не измененно
+		}
+	}
+	//console.log('\n', 's after shuffle:', s);											//Показать результирующий массив
+	return s.join('');
+}
+
+//строку - в base64
+function b64EncodeUnicode(str) {
+// first we use encodeURIComponent to get percent-encoded UTF-8,
+	// then we convert the percent encodings into raw bytes which
+	// can be fed into btoa.
+	return btoa(encodeURIComponent(str).replace(/%([0-9A-f]{2})/g,
+		function toSolidBytes(match, p1) {
+			return String.fromCharCode('0x' + p1);
+	}));
+}
+
+//base64 из строки
+function b64DecodeUnicode(str) {
+	// Going backwards: from bytestream, to percent-encoding, to original string.
+	return decodeURIComponent(atob(str).split('').map(function(c) {
+		return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+	}).join(''));
+}
+
+//vernam encrypt
+function Vernam_Encrypt(m){
+	//1. 	Задаётся открытый текст. Если он не задан, то дефолтный, для теста.
+	var m = (typeof m === 'undefined') ? "Это - открытый текст для шифрования." : m;
+	//console.log('m', m, 'm.length', m.length);
+	
+	//2. 	Генерируется vernam_key - случайный ключ c длиной равной длине текста m.
+	var vernam_key = csRNG(m.length);
+	//console.log('vernam_key', vernam_key, 'vernam_key.length', vernam_key.length);
+	
+	//3.	Шифрование:
+	var vernam_cypher = XOR_two_strings(m, vernam_key);
+	//console.log('vernam_cypher', vernam_cypher, 'vernam_cypher.length', vernam_cypher.length);
+	
+	//4.	Складываем шифр и ключ в одну строку.
+	var cyphertext = vernam_cypher+vernam_key;
+	//console.log('cyphertext', cyphertext, 'cyphertext.length', cyphertext.length);
+	
+	//5.	для половины массива, если рандом единица, то обмен между этой половиной и другой, иначе - оставить.
+	var encrypted = shuffle_cypher(cyphertext);
+	//now array with encrypted text is shuffled.
+	//console.log('encrypted', encrypted, 'encrypted.length', encrypted.length);
+	return encrypted;
+}
+
+//Vernam decrypt
+function Vernam_Decrypt(cypher, key){	//На входе - либо cyphertext, либо cypher + key отдельно,
+											//либо две подстроки смешанного cypher и key - без разницы где какая.
+	if(typeof key === 'undefined'){										//если key не задан
+		var part1 = cypher.substring(0, (cypher.length/2));				//cypher берётся из первой половины
+		//console.log('part1', part1, 'part1.length', part1.length);
+		var part2 = cypher.substring(cypher.length/2, cypher.length);	//key - со второй.
+		//console.log('part2', part2, 'part2.length', part2.length);
+	}else{																//иначе
+		var part1 = cypher;												//соответственно
+		var part2 = key;												//из аргументов
+	}
+	//6. Дешифрование:
+	var decrypted = XOR_two_strings(part1, part2);
+	//console.log('decrypted', decrypted, 'decrypted.length', decrypted.length);
+	
+	//7. Возврат дешифрованного сообщения.
+	return decrypted;
+}
+
+//Тест с интервалом.
+setInterval(
+	function(){
+		//Очистить консоль при каждом повторе.
+		console.clear();
+		
+		//Тест пошёл...
+		
+		//1. Сперва генерируется какая-то строка исходного сообщения - с 50-ю символами
+		var random_message = csRNG(50);
+		console.log("\n\nСгенерированное сообщение: "+random_message.length+' = random_message.length, \n'+'random_message: ', random_message);
+		
+		//2. Затем она шифруется каким-то ключём, используя Шифр Вернама
+		var vernam_encrypted = Vernam_Encrypt(random_message);
+		//На выходе - какая-то строка с символами шифротекста и ключа. Символы - внутри перемешаны.
+		console.log("Зашифрованное сообщение: "+vernam_encrypted.length+', vernam_encrypted.length, \n'+'vernam_encrypted: '+vernam_encrypted);
+		
+		//3. После этого, шифротекст дешифруется в назад эту в исходное сообщение
+		var decrypted1 = Vernam_Decrypt(vernam_encrypted);
+		//console.log(decrypted1.length, 'decrypted1.length', 'decrypted1:', decrypted1);
+
+		//4. Другой способ дешифровки...
+		//вместо шифротекста, дешифровка происходит подачей двух переменных
+		//Первая подстрока - как-бы шифротекст, вторая - как-бы ключ. Но они взбиты и помешаны.
+		var decrypted2 = Vernam_Decrypt(
+			vernam_encrypted.substring(0, vernam_encrypted.length/2),
+			vernam_encrypted.substring(vernam_encrypted.length/2, vernam_encrypted.length)
+		);
+		//console.log(decrypted2.length, 'decrypted2.length', 'decrypted2:', decrypted2);
+		
+		//5. То же самое, но подстроки теперь - наоборот, ведь операция XOR - коммутативна. Результат - тот же.
+		var decrypted3 = Vernam_Decrypt(
+			vernam_encrypted.substring(vernam_encrypted.length/2, vernam_encrypted.length),
+			vernam_encrypted.substring(0, vernam_encrypted.length/2)
+		);
+		//console.log(decrypted3.length, 'decrypted3.length', 'decrypted3:', decrypted3);
+		
+		//6. Шифротекст - в base64, целиком.
+		var encrypted_base64 = b64EncodeUnicode(vernam_encrypted);
+		console.log(
+			"Оно же, в бейсе: "+encrypted_base64.length+' = encrypted_base64.length\n'+
+			'encrypted_base64: '+encrypted_base64
+		);
+		
+		//Дешифровка из base64, одним параметром.
+		var decrypted4 = Vernam_Decrypt(b64DecodeUnicode(encrypted_base64));
+		console.log(
+				'Дешифровано из бейса: '+decrypted4.length+' = decrypted4.length\n'
+				+'decrypted4:'+decrypted4
+		);
+		
+		//7. Шифротекст пополам, и в base64
+		var encrypted_base64_part1 = b64EncodeUnicode(vernam_encrypted.substring(0, vernam_encrypted.length/2));
+		console.log(
+					"Первая половина шифротекста в бейсе: "+encrypted_base64_part1.length+' = encrypted_base64_part1.length\n'
+					+'encrypted_base64_part1: '+encrypted_base64_part1);
+		//Вторая половина шифротекста в бейсе
+		var encrypted_base64_part2 = b64EncodeUnicode(vernam_encrypted.substring(vernam_encrypted.length/2, vernam_encrypted.length));
+		console.log(
+				"Вторая половина: "+encrypted_base64_part2.length+' = encrypted_base64_part2.length\n'+
+				'encrypted_base64_part2: '+encrypted_base64_part2
+		);
+
+		//Дешифровка обоими половинами из бейса
+		var decrypted5 = Vernam_Decrypt(
+			b64DecodeUnicode(encrypted_base64_part1),
+			b64DecodeUnicode(encrypted_base64_part2)
+		);
+		
+		//8. Теперь, наоборот
+		var decrypted6 = Vernam_Decrypt(
+			b64DecodeUnicode(encrypted_base64_part2),
+			b64DecodeUnicode(encrypted_base64_part1)
+		);
+		
+		
+		
+		//9. Сравнение результатов всех способов дешифровки - с исходним, сгенерированным сообщением:
+		console.log(
+			'Сравнение всех способов дешифровки должно вернуть true:\n'+
+			'(	\n'+
+			'		(decrypted1 === random_message)\n'+
+			'	&&	(decrypted2 === random_message)\n'+
+			'	&& 	(decrypted3 === random_message)\n'+
+			'	&& 	(decrypted4 === random_message)\n'+
+			'	&& 	(decrypted5 === random_message)\n'+
+			'	&& 	(decrypted6 === random_message)\n'+
+			') === '+
+			(
+					(decrypted1 === random_message)
+				&& 	(decrypted2 === random_message)
+				&& 	(decrypted3 === random_message)
+				&& 	(decrypted4 === random_message)
+				&& 	(decrypted5 === random_message)
+				&& 	(decrypted6 === random_message)
+			)	//если всё ок, выражение - должно вернуть true
+		);
+	},
+	5000		//повторять по таймауту
+);
+
+
+//Дальше три функции для работы шифра на странице:
+	//HTML-элементы, их всего 4.
+	var to_encrypt = document.getElementById('message');
+	var encrypted_base64 = document.getElementById('encrypted_base64');
+	var to_decrypt_part1 = document.getElementById('base64_encrypted_part1');
+	var to_decrypt_part2 = document.getElementById('base64_encrypted_part2');
+	var decrypted_base64 = document.getElementById('decrypted_base64');
+
+//Шифрование текста из текстареи. На выходе - три бейс-строки и кнопка перемешивания.
+function encrypt_base64(){
+	encrypted_base64.innerHTML = '';
+	var message = to_encrypt.value;
+	var vernam_encrypted = Vernam_Encrypt(message);
+	
+	var encrypted_base64_part1 = b64EncodeUnicode(vernam_encrypted.substring(0, vernam_encrypted.length/2));
+	var encrypted_base64_part2 = b64EncodeUnicode(vernam_encrypted.substring(vernam_encrypted.length/2, vernam_encrypted.length));
+	var base64_cyphertext = b64EncodeUnicode(vernam_encrypted);
+	
+	encrypted_base64.innerHTML =
+		"Часть1: <input id='part1_base' onclick='this.select();' size='100' value='"+encrypted_base64_part1+"' title='Подстрока1 шифротекста, в бейсе.'></input><br>"+
+		"Часть2: <input id='part2_base' onclick='this.select();' size='100' value='"+encrypted_base64_part2+"' title='Подстрока2 шифротекста, в бейсе.'></input><br>"+
+		"Полный шифр: <input id='full_cyphertext' onclick='this.select();' size='100' value='"+base64_cyphertext+"' title='Полный шифротекст, в бейсе.'></input>"+
+		'<input value="Перемешать данные" type="submit" onclick="shuffle_cyphertext()"\
+		title="Поменять рандомные символы ключа и шифротекста. Заметь, не вся строка меняется."></input>'
+	;
+}
+
+//Дешифровать из бейс строки / или двух строк
+function decrypt_base64(){
+	decrypted_base64.innerHTML = '';
+	var encrypted_base64_part1 = to_decrypt_part1.value;
+	var encrypted_base64_part2 = (to_decrypt_part2.value == "") ? undefined : to_decrypt_part2.value;
+	try{
+		decrypted_base64.innerHTML =
+			"Дешифрованное сообщение:<br><textarea onclick='this.select();' rows='3' cols='100'>"+
+			(
+				(typeof encrypted_base64_part2 === 'undefined')
+					?	Vernam_Decrypt(b64DecodeUnicode(encrypted_base64_part1.trim()))
+					: 	Vernam_Decrypt(b64DecodeUnicode(encrypted_base64_part1.trim()), b64DecodeUnicode(encrypted_base64_part2.trim()))
+			)
+			+"</textarea><br>"
+		;
+	}
+	catch(err){
+		console.log("Error: Невалидный бейс шифртекста.");
+	}
+}
+
+//Перемешать символы ключа и шифра.
+function shuffle_cyphertext(){
+	var cypher_element = document.getElementById('full_cyphertext');
+	var cyphertext = shuffle_cypher(b64DecodeUnicode(cypher_element.value));
+	var part1_base = document.getElementById('part1_base');
+	var part2_base = document.getElementById('part2_base');
+	
+	cypher_element.value = b64EncodeUnicode(cyphertext);
+	part1_base.value = b64EncodeUnicode(cyphertext.substring(0, cyphertext.length/2));
+	part2_base.value = b64EncodeUnicode(cyphertext.substring(cyphertext.length/2, cyphertext.length));
+}
+
+</script>
+
+</html>
