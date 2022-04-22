@@ -15,6 +15,13 @@ Author: William P. "Mac" McMeans<br>
 Date: 3 MAY 2018
 <br>&nbsp;<br>
 
+<br>&nbsp;<br>
+
+<p align="center">
+  <b>“The generation of random numbers is too important to be left to chance.” ~ Robert R. Coveyou</b>
+</p>
+  
+<br>&nbsp;<br>
 
 ## Application:
 Use this to produce high-quality random numbers, and to encipher discrete messages and streams. You may also create arbitrary length byte arrays and text strings of random composition. Note: This generator is cryptographically secure. If you don't need a secure generator then consider <a href="https://github.com/macmcmeans/aleaPRNG">ALEA</a> for your application, an RNG created by Johannes Baagøe having excellent statistical properties.
