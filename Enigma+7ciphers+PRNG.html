@@ -248,7 +248,7 @@ console.log(
 			encrypt_decrypt_button.style.display 			= 'inline-block';
 			encrypt_decrypt_button.style.display 			= 'inline-block';
 			special_symbol_for_XOR_element.style.display 	= 'inline-block';
-			progress_text(undefined, undefined, undefined, undefined, 'vernam', undefined, undefined);
+			progress_text(undefined, undefined, undefined, undefined, 'vernam', undefined, special_symbol_for_XOR_element.value);
 		}
 		else if(Vizhener_mode.checked){
 		//	console.log('Vizhener');
@@ -296,17 +296,22 @@ function change_special_symbol_for_XOR(){
 	if(alphabet.indexOf(special_symbol_for_XOR_element.value)===-1){
 		progress_text(undefined, undefined, undefined, undefined, undefined, undefined, special_symbol_for_XOR_element.value);
 		show_hide_border(special_symbol_for_XOR_element, "green", border_size);
+		prng.param_set('special_symbol_for_XOR', 	special_symbol_for_XOR_element.value);	
+		update_textareas_vernam_cipher(special_symbol_for_XOR_element.value);
 	}else{
-		progress_text(undefined, undefined, undefined, undefined, undefined, undefined, '');		//set default special symbol
+		progress_text(undefined, undefined, undefined, undefined, undefined, undefined, '�');		//set default special symbol
 		show_hide_border(special_symbol_for_XOR_element, "red", border_size);
 		if(special_symbol_for_XOR_element.value !== ''){
 			setTimeout(
 				function(){
 					special_symbol_for_XOR_element.value = '�';
+					prng.param_set('special_symbol_for_XOR', 	special_symbol_for_XOR_element.value);
+					update_textareas_vernam_cipher(special_symbol_for_XOR_element.value);
 				}, 500
 			)
 		}
 	}
+	//console.log("prng.param_get('special_symbol_for_XOR')", prng.param_get('special_symbol_for_XOR'));
 }
 
 
@@ -508,8 +513,29 @@ function change_special_symbol_for_XOR(){
 	
 	
 	
+	//update Vernam_XOR_symbol in specified textarea
+	function update_textarea_vernam_cipher(Vernam_XOR_symbol, textarea){
+		var str = '';
+		for(var i = 0; i<textarea.value.length; i++){
+			if(
+					(alphabet.indexOf(textarea.value[i]) === -1)
+				&&	textarea.value[i] !== Vernam_XOR_symbol
+			){
+				str += Vernam_XOR_symbol;
+			}
+			else{
+				str += textarea.value[i];
+			}
+		}
+		textarea.value = str;
+	}
 	
-	
+	//update Vernam_XOR_symbol in all textareas, where vernam-cipher can contains.
+	function update_textareas_vernam_cipher(Vernam_XOR_symbol){
+		update_textarea_vernam_cipher(Vernam_XOR_symbol, msg_in);
+		update_textarea_vernam_cipher(Vernam_XOR_symbol, txt_in);
+		update_textarea_vernam_cipher(Vernam_XOR_symbol, msg_out);
+	}
 	
 	
 	
