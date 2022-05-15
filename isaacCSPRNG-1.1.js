@@ -1108,7 +1108,7 @@ function test(){
 	
 	var vernam_encrypt = '';
 	for(i=0; i<string.length; i++){
-		var character = symbol(string[i])[0];
+		var character = this.symbol(string[i])[0];
 		vernam_encrypt += character;
 	}
 	algo = '';
@@ -1119,7 +1119,7 @@ function test(){
 	algo = 'vernam';
 	var vernam_decrypt = '';
 	for(i=0; i<vernam_encrypt.length; i++){
-		var character = symbol(vernam_encrypt[i])[0];				//тест варианта с заменяющим символом и расширенным полем. Работает.
+		var character = this.symbol(vernam_encrypt[i])[0];				//тест варианта с заменяющим символом и расширенным полем. Работает.
 		vernam_decrypt += character;
 	}
 	algo = '';
@@ -1141,7 +1141,7 @@ function test(){
 	algo = 'shifted_atbash';
 	var shifted_atbash_encrypt = '';
 	for(i=0; i<string.length; i++){
-		var character = symbol(string[i])[0];
+		var character = this.symbol(string[i])[0];
 		shifted_atbash_encrypt += character;
 	}
 	algo = '';
@@ -1153,7 +1153,7 @@ function test(){
 	algo = 'shifted_atbash';
 	var shifted_atbash_decrypt = '';
 	for(i=0; i<shifted_atbash_encrypt.length; i++){
-		var character = symbol(shifted_atbash_encrypt[i])[0];				//тест варианта с заменяющим символом и расширенным полем. Работает.
+		var character = this.symbol(shifted_atbash_encrypt[i])[0];				//тест варианта с заменяющим символом и расширенным полем. Работает.
 		shifted_atbash_decrypt += character;
 	}
 	algo = '';
@@ -1174,7 +1174,7 @@ function test(){
 	algo = 'beaufort';
 	var beaufort_encrypt = '';
 	for(i=0; i<string.length; i++){
-		var character = symbol(string[i])[0];
+		var character = this.symbol(string[i])[0];
 		beaufort_encrypt += character;
 	}
 	algo = '';
@@ -1185,7 +1185,7 @@ function test(){
 	algo = 'beaufort';
 	var beaufort_decrypt = '';
 	for(i=0; i<beaufort_encrypt.length; i++){
-		var character = symbol(beaufort_encrypt[i])[0];				//тест варианта с заменяющим символом и расширенным полем. Работает.
+		var character = this.symbol(beaufort_encrypt[i])[0];				//тест варианта с заменяющим символом и расширенным полем. Работает.
 		beaufort_decrypt += character;
 	}
 	algo = '';
@@ -1207,7 +1207,7 @@ function test(){
 	algo = 'atbash';
 	var atbash_encrypt = '';
 	for(var symbol=0; symbol<string.length; symbol++){
-		var character = symbol(string[symbol])[0];
+		var character = this.symbol(string[symbol])[0];
 		atbash_encrypt += character;
 	}
 	algo = '';
@@ -1219,7 +1219,7 @@ function test(){
 	algo = 'atbash';
 	var atbash_decrypt = '';
 	for(symbol=0; symbol<atbash_encrypt.length; symbol++){
-		var character = symbol(atbash_encrypt[symbol])[0];				//тест варианта с заменяющим символом и расширенным полем. Работает.
+		var character = this.symbol(atbash_encrypt[symbol])[0];				//тест варианта с заменяющим символом и расширенным полем. Работает.
 		atbash_decrypt += character;
 	}
 	algo = '';
@@ -1241,7 +1241,7 @@ function test(){
 	algo = 'tritemius';
 	var tritemius_encrypt = '';
 	for(i=0; i<string.length; i++){
-		var character = symbol(string[i])[0];
+		var character = this.symbol(string[i])[0];
 		tritemius_encrypt += character;
 	}
 	algo = '';
@@ -1253,7 +1253,7 @@ function test(){
 	algo = 'tritemius';
 	var tritemius_decrypt = '';
 	for(i=0; i<tritemius_encrypt.length; i++){
-		var character = symbol(tritemius_encrypt[i], 'Decipher')[0];				//тест варианта с заменяющим символом и расширенным полем. Работает.
+		var character = this.symbol(tritemius_encrypt[i], 'Decipher')[0];				//тест варианта с заменяющим символом и расширенным полем. Работает.
 		tritemius_decrypt += character;
 	}
 	algo = '';
@@ -1275,7 +1275,7 @@ function test(){
 	algo = 'gronsfeld';
 	var gronsfeld_encrypt = '';
 	for(i=0; i<string.length; i++){
-		var character = symbol(string[i])[0];
+		var character = this.symbol(string[i])[0];
 		gronsfeld_encrypt += character;
 	}
 	algo = '';
@@ -1287,7 +1287,7 @@ function test(){
 	algo = 'gronsfeld';
 	var gronsfeld_decrypt = '';
 	for(i=0; i<gronsfeld_encrypt.length; i++){
-		var character = symbol(gronsfeld_encrypt[i], 'Decipher')[0];				//тест варианта с заменяющим символом и расширенным полем. Работает.
+		var character = this.symbol(gronsfeld_encrypt[i], 'Decipher')[0];				//тест варианта с заменяющим символом и расширенным полем. Работает.
 		gronsfeld_decrypt += character;
 	}
 	algo = '';
@@ -1309,7 +1309,7 @@ function test(){
 	algo = 'vizhener';
 	var vizhener_encrypt = '';
 	for(i=0; i<string.length; i++){
-		var character = symbol(string[i])[0];
+		var character = this.symbol(string[i])[0];
 		vizhener_encrypt += character;
 	}
 	algo = '';
@@ -1320,7 +1320,7 @@ function test(){
 	algo = 'vizhener';
 	var vizhener_decrypt = '';
 	for(i=0; i<vizhener_encrypt.length; i++){
-		var character = symbol(vizhener_encrypt[i], 'Decipher')[0];				//тест варианта с заменяющим символом и расширенным полем. Работает.
+		var character = this.symbol(vizhener_encrypt[i], 'Decipher')[0];				//тест варианта с заменяющим символом и расширенным полем. Работает.
 		vizhener_decrypt += character;
 	}
 	algo = '';
@@ -1372,6 +1372,7 @@ function test(){
 			, 'param_get'		:	param_get			//param_get(param): algo, alphabet, XOR_char
 			, 'param_set'		:	param_set			//param_set(param, value): algo, alphabet, XOR_char
 			//See commented USAGE here. You can uncomment it and see console.log( F12 button ), then.
+			, 'test'			:	test				//run tests all ciphers. "var prng = isaacCSPRNG(); prng.test();"
         };
      
     })( specifiedSeed );
