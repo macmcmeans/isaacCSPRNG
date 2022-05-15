@@ -52,12 +52,12 @@ CSPRNG key = seed + message.length'><br>
 				4. Select cipher algorithm:
 				<br>
 				<font color="black"><b>Reversive (one button for encrypt/decrypt): </b></font>
-			| <label>Vernam 		<input type="radio" id="Vernam_mode" 				name="cypher" value="Vernam" onclick="set_cypher();"/></label>
-				<input id="special_symbol_for_XOR" value="�" maxlength="1" size="1"
+			| <label>Vernam 		<input type="radio" id="Vernam_mode" 				name="cypher" value="Vernam" checked="checked" onclick="set_cypher();"/></label>
+				<input id="special_symbol_for_XOR" value="" maxlength="1" size="1"
 				title="Input special symbol for XOR, if code of symbol is greater than (2^N - 1).
 This symbol must not to be in the alphabet, and just will be using as marker."
 				oninput="change_special_symbol_for_XOR();"></input>
-			| <label>Shifted atbash 	<input type="radio" id="shifted_atbash_mode" 	name="cypher" value="shifted_atbash" checked="checked" onclick="set_cypher();"/></label>
+			| <label>Shifted atbash 	<input type="radio" id="shifted_atbash_mode" 	name="cypher" value="shifted_atbash" onclick="set_cypher();"/></label>
 			| <label>Beaufort 		<input type="radio" id="Beaufort_mode" 				name="cypher" value="Beaufort" onclick="set_cypher();"/></label>
 			| <label>Atbash	<input type="radio" id="Atbash_mode" 						name="cypher" value="Atbash" onclick="set_cypher();"/></label>
 			|	<br><font color="black"><b> Not Reversive (two buttons for encrypt and decrypt): </b></font>
@@ -197,7 +197,10 @@ console.log(
 
 	var prng = isaacCSPRNG();			//Define generator object with isaacCSPRNG
 
+	var use_special_symbol_for_XOR = '+';
 	var special_symbol_for_XOR_element = document.getElementById('special_symbol_for_XOR');
+	special_symbol_for_XOR_element.value = use_special_symbol_for_XOR;
+	
 	var shuffled_alphabet_pre = document.getElementById('shuffled_alphabet');
 
 	//HTML elements, as JavaScript variables:
@@ -244,7 +247,7 @@ console.log(
 			progress_text(undefined, undefined, undefined, undefined, 'shifted_atbash', undefined, undefined);
 		}
 		else if(Vernam_mode.checked){
-		//	console.log('Vizhener');
+		//	console.log('Vernam_mode');
 			encrypt_decrypt_button.style.display 			= 'inline-block';
 			encrypt_decrypt_button.style.display 			= 'inline-block';
 			special_symbol_for_XOR_element.style.display 	= 'inline-block';
@@ -262,7 +265,7 @@ console.log(
 			progress_text(undefined, undefined, undefined, undefined, 'beaufort', undefined, undefined);
 		}
 		else if(Atbash_mode.checked){
-		//	console.log('Gronsfeld');
+		//	console.log('Atbash_mode');
 			Atbash_button.style.display						= 'inline-block';
 			progress_text(undefined, undefined, undefined, undefined, 'atbash', undefined, undefined);
 		}
@@ -273,7 +276,7 @@ console.log(
 			progress_text(undefined, undefined, undefined, undefined, 'gronsfeld', undefined, undefined);
 		}
 		else if(Tritemius_mode.checked){
-		//	console.log('Gronsfeld');
+		//	console.log('Tritemius_mode');
 			tritemius_encrypt_button.style.display			= 'inline-block';
 			tritemius_decrypt_button.style.display			= 'inline-block';
 			progress_text(undefined, undefined, undefined, undefined, 'tritemius', undefined, undefined);
@@ -373,6 +376,11 @@ function change_special_symbol_for_XOR(){
 			shuffle(symbols);							//shuffle it
 			symbols = symbols.join('');					//convert to string
 		}
+
+		if(Vernam_mode.checked){
+			prng.param_set('special_symbol_for_XOR', 	special_symbol_for_XOR_element.value);	//update XOR-symbol, for vernam cipher, if need.
+		}
+				
 		progress_text('', '', '', '', '', symbols);
 		shuffled_alphabet_pre.innerHTML = prng.param_set('alphabet', symbols);
 		show_hide_border(element, "green", border_size);
@@ -398,6 +406,7 @@ function change_special_symbol_for_XOR(){
 	//function to set seed in generator
 	function change_seed(seed_source_element){
 		var sha512_hash = sha512(seed_source_element.value);
+	//	console.log('seed: '+sha512_hash);
 		prng.seed(sha512_hash);								//set seed
 		//console.log("New seed updated.");
 		setAlphabet(document.getElementById('alphabet'));	//set alphabet and shuffle this.
@@ -466,13 +475,27 @@ function change_special_symbol_for_XOR(){
 	//progress one symbol
     init_txtinput.onkeyup = function() {
 		if(	alphabet.indexOf(this.value)	===	-1	){
-			this.value = "";
-			var elem = this;
-			show_hide_border(elem, "red", border_size);
+			if(
+					Vernam_mode.checked
+				&&	this.value === special_symbol_for_XOR_element.value
+			){
+				msg_in.value 	+= 	this.value;
+				this.value = "";
+				this.focus();
+				return;
+			}
+			else{
+				this.value = "";
+				var elem = this;
+				show_hide_border(elem, "red", border_size);
+			}
 		}
 		for (i = 0; i < this.value.length; i++){
 			msg_in.value 	+= 	this.value;
 			var result = prng.symbol(this.value);
+			if(msg_in.value[msg_in.value.length-2] === special_symbol_for_XOR_element.value){
+				result[0] = result[0].slice(1); //remove xor char from result
+			}
 			msg_out.value 				+= 	result[0];	//cipher
 			generated_key_value.value	+= 	result[1];	//key
 		}
@@ -490,17 +513,29 @@ function change_special_symbol_for_XOR(){
 									//.substring(0, msg_in.value.length-1)
 									.slice(0, msg_in.value.length-1)
 			;
+			
+			 //remove XOR-char
+			if( msg_in.value[msg_in.value.length-1] === special_symbol_for_XOR_element.value ){
+				msg_in.value = msg_in.value.slice(0, -1);
+			}
+
 			msg_out.value = msg_out
 									.value
 									.substring(0, msg_out.value.length-1)
 									//.slice(0, msg_out.value.length-1)
 			;
+
+			//remove XOR-char
+			if( msg_out.value[msg_out.value.length-1] === special_symbol_for_XOR_element.value ){
+				msg_out.value = msg_out.value.slice(0, -1);
+			}
+
 			generated_key_value.value = generated_key_value
 									.value
 									.substring(0, generated_key_value.value.length-1)
 									//.slice(0, msg_out.value.length-1)
 			;
-			
+
 			change_seed(seed_element);							//set previous seed again
 			prng.skip_bytes(msg_in.value.length);				//skip generated bytes - up to new message length
 		}

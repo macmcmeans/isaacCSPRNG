@@ -815,6 +815,7 @@ isaacCSPRNG = function( specifiedSeed ){
 	var N_pow_2;								//ones + 1 symbol (100...0, 2^N) - for additional XOR
 	var wait_next_symbol;						//true if need to wait next symbol, after special symbol
 	var special_symbol_for_XOR;					//special symbol value
+	var default_special_symbol_for_XOR = '�';	//if previous undefined - use this value. It's any char which not contains in alphabet '�', '▲', '+', '*', '♥', etc...
 	var insert_symbol;							//true when special symbol was been inserted.
 
 	//function to update variables for vernam successfully XOR
@@ -843,7 +844,7 @@ isaacCSPRNG = function( specifiedSeed ){
 		//	);
 
 		wait_next_symbol = false;
-		special_symbol_for_XOR = "�";
+		special_symbol_for_XOR = special_symbol_for_XOR || default_special_symbol_for_XOR;
 		insert_symbol = false;
 	}
 
@@ -859,8 +860,8 @@ isaacCSPRNG = function( specifiedSeed ){
 		if(typeof param !== 'undefined'){
 			if(param === 'algo'){
 				algo = value;
-				console.log('algo updated: ', algo);
 				if(algo==='vernam'){set_VERNAM_variables_for_XOR();}
+				console.log('algo updated: ', algo, ( (algo === 'vernam') ? 'special_symbol_for_XOR: '+special_symbol_for_XOR : '' ) );
 				return algo;
 			}
 			if(param === 'alphabet'){
@@ -871,6 +872,7 @@ isaacCSPRNG = function( specifiedSeed ){
 			}
 			if(param === 'special_symbol_for_XOR'){
 				special_symbol_for_XOR = value;
+				console.log('special_symbol_for_XOR', special_symbol_for_XOR);
 				return special_symbol_for_XOR;
 			}
 		}
@@ -906,7 +908,7 @@ isaacCSPRNG = function( specifiedSeed ){
 				if(Vernam_XOR_symbol.length > 1){
 					console.log('maximum one character for special symbol. Current length = ', Vernam_XOR_symbol.length);
 				}
-				param_set('special_symbol_for_XOR', '�');			//set default special symbol if string was been empty.
+				param_set('special_symbol_for_XOR', default_special_symbol_for_XOR);			//set default special symbol if string was been empty.
 				console.log(notify, special_symbol_for_XOR);
 				return special_symbol_for_XOR;
 			}else{
