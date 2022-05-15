@@ -602,20 +602,20 @@ isaacCSPRNG = function( specifiedSeed ){
 		console.log( prng.param_get('algo') );
 
 		
-//6.	Set special_symbol_for_XOR for vernam encrypt-decrypt:
-		console.log( prng.param_set('special_symbol_for_XOR', 	'+') );						//directly
+//6.	Set XOR_char for vernam encrypt-decrypt:
+		console.log( prng.param_set('XOR_char', 	'+') );						//directly
 		console.log( prng.progress_string(undefined, '', undefined, '', undefined, '♥') );	//	or on try to encrypt-decrypt strings with new algo
 		console.log( prng.symbol('', undefined, '', undefined, '', '▲') );					//	or on try to encrypt-decrypt symbol with new algo
 
-//7.	Get current special_symbol_for_XOR:
-		console.log( prng.param_get('special_symbol_for_XOR') );
+//7.	Get current XOR_char:
+		console.log( prng.param_get('XOR_char') );
 		
 		
 		
 //8.	Encrypt/decrypt symbol-by-symbol, with reversive and not reversive cipher algorithms, using CSPRNG or specified keys:
 		console.log( prng.param_set('algo', 		'vernam') );
 		console.log( prng.param_set('alphabet', 	'ABCDEFGHIJKLMNOPQRSTUVWXYZ') );
-		console.log( prng.param_set('special_symbol_for_XOR', 	'♥') ); 
+		console.log( prng.param_set('XOR_char', 	'♥') ); 
 		
 		//Encrypt:
 		console.log( prng.seed('My_super_secret_start_seed') );	// set start seed
@@ -627,7 +627,7 @@ isaacCSPRNG = function( specifiedSeed ){
 			//set values
 		console.log( prng.param_set('algo', 	'vernam') );
 		console.log( prng.param_set('alphabet', 	'ABCDEFGHIJKLMNOPQRSTUVWXYZ') );
-		console.log( prng.param_set('special_symbol_for_XOR', 	'♥') ); 
+		console.log( prng.param_set('XOR_char', 	'♥') ); 
 			//decrypt with specified key
 		console.log(prng.symbol('T', '', 'S'));			// ["B", "S"]	//text + specified key
 		console.log(prng.symbol('N', undefined, 'M'));	// ["B", "M"]	//text + specified key
@@ -676,7 +676,7 @@ isaacCSPRNG = function( specifiedSeed ){
 //8.	Encrypt/decrypt strings, with reversive cipher algorithms, using CSPRNG or using specified keys:
 		console.log( prng.param_set('algo', 		'vernam') );
 		console.log( prng.param_set('alphabet', 	'ABCDEFGHIJKLMNOPQRSTUVWXYZ') );
-		console.log( prng.param_set('special_symbol_for_XOR', 	'▲') );
+		console.log( prng.param_set('XOR_char', 	'▲') );
 		
 		//Encrypt:
 		console.log( prng.seed('My_super_secret_start_seed') );	// set start seed
@@ -690,7 +690,7 @@ isaacCSPRNG = function( specifiedSeed ){
 			//set values
 		console.log( prng.param_set('algo', 	'vernam') );
 		console.log( prng.param_set('alphabet', 	'ABCDEFGHIJKLMNOPQRSTUVWXYZ') );
-		console.log( prng.param_set('special_symbol_for_XOR', 	'▲') ); 
+		console.log( prng.param_set('XOR_char', 	'▲') ); 
 			//decrypt with specified key
 		console.log(prng.progress_string('Encrypt', "BLRRNHUMVWEC", "SMZDFVYUGSTR"));
 		//["THISISMYTEXT", "SMZDFVYUGSTR"]		//text + specified key
@@ -763,12 +763,12 @@ isaacCSPRNG = function( specifiedSeed ){
 		);
 	//var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";	//or like in enigma - 26 letters
 
-//special symbol for vernam key
+//XOR_char for vernam key
 /*
 	Vernam cipher using XOR.
 	This working good when alphabet length is equal of 2^N (2^N-1, including 0);
 	So, when alphabet length is 2^N, for example 32 symbols (2^5), XOR can working good.
-	But for alphabets with length not equal 2^N need special symbol.
+	But for alphabets with length not equal 2^N need XOR_char.
 		Why?
 			For example, alphabet is:
 			var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -783,21 +783,21 @@ isaacCSPRNG = function( specifiedSeed ){
 				That means key can have value from 0 to 1111 maximum.
 				
 			2.	When symbol code 11001 or result 11101 > 1111
-				Just XOR this to 10000 and add special symbol which not contains in alphabet.
+				Just XOR this to 10000 and add XOR_char which not contains in alphabet.
 				Then add result.
 				Example:
 					11001 XOR 0100 = (11001>1111) XOR 0100 =
-					special_symbol + (11001 XOR 10000) XOR 0100 =
-					special symbol + 01001 XOR 0100 =
-					special symbol + 01001 XOR 0100 =
-					special symbol + 1101.
-			3. When special symbol found, XOR at 10000 again:
+					XOR_char + (11001 XOR 10000) XOR 0100 =
+					XOR_char + 01001 XOR 0100 =
+					XOR_char + 01001 XOR 0100 =
+					XOR_char + 1101.
+			3. When XOR_char found, XOR at 10000 again:
 				XOR the result:
-					special symbol + 1101 XOR 0100 = 
+					XOR_char + 1101 XOR 0100 = 
 					(1101 XOR 10000) XOR 0100 = 
 					11101 XOR 10000 XOR 0100 = 11001
 				Or XOR the symbol:
-					special symbol + 1101 XOR 0100 = 
+					XOR_char + 1101 XOR 0100 = 
 					1101 XOR 0100 = 
 					1001 XOR (10000) = 11001
 		
@@ -813,15 +813,15 @@ isaacCSPRNG = function( specifiedSeed ){
 	var ones;									//max value for XOR
 	var ones_bin_string;						//bitlength ones binary string
 	var N_pow_2;								//ones + 1 symbol (100...0, 2^N) - for additional XOR
-	var wait_next_symbol;						//true if need to wait next symbol, after special symbol
-	var special_symbol_for_XOR;					//special symbol value
-	var default_special_symbol_for_XOR = '�';	//if previous undefined - use this value. It's any char which not contains in alphabet '�', '▲', '+', '*', '♥', etc...
-	var insert_symbol;							//true when special symbol was been inserted.
+	var wait_next_symbol;						//true if need to wait next symbol, after XOR_char
+	var XOR_char;								//XOR_char value
+	var default_XOR_char = '�';					//if previous undefined - use this value. It's any char which not contains in alphabet '�', '▲', '+', '*', '♥', etc...
+	var insert_symbol;							//true when XOR_char was been inserted.
 
 	//function to update variables for vernam successfully XOR
 	function set_VERNAM_variables_for_XOR(){
 		//for vernam mode need to calculate the following variables:
-		alphabet_length = alphabet.length-1;										//-1 symbol (first symbol, as special symbol)
+		alphabet_length = alphabet.length-1;										//-1 symbol (first symbol, as XOR_char)
 		as_binary_string = alphabet_length.toString(2);								//length, as binary string
 		binary_digits = as_binary_string.length;									//number of binary digits
 		minus_left_one = (alphabet_length>>1);										//nulled left one.
@@ -844,7 +844,7 @@ isaacCSPRNG = function( specifiedSeed ){
 		//	);
 
 		wait_next_symbol = false;
-		special_symbol_for_XOR = special_symbol_for_XOR || default_special_symbol_for_XOR;
+		XOR_char = XOR_char || default_XOR_char;
 		insert_symbol = false;
 	}
 
@@ -853,7 +853,7 @@ isaacCSPRNG = function( specifiedSeed ){
 			if(param === 'algo') return algo;
 			else if(param === 'algos') return modes;
 			else if(param === 'alphabet') return alphabet;
-			else if(param === 'special_symbol_for_XOR') return special_symbol_for_XOR;
+			else if(param === 'XOR_char') return XOR_char;
 		}
 	}
 	function param_set(param, value){
@@ -861,7 +861,7 @@ isaacCSPRNG = function( specifiedSeed ){
 			if(param === 'algo'){
 				algo = value;
 				if(algo==='vernam'){set_VERNAM_variables_for_XOR();}
-				console.log('algo updated: ', algo, ( (algo === 'vernam') ? 'special_symbol_for_XOR: '+special_symbol_for_XOR : '' ) );
+				console.log('algo updated: ', algo, ( (algo === 'vernam') ? ', XOR_char: '+XOR_char : '' ) );
 				return algo;
 			}
 			if(param === 'alphabet'){
@@ -870,10 +870,10 @@ isaacCSPRNG = function( specifiedSeed ){
 				//console.log('alphabet updated: ', alphabet);
 				return alphabet;
 			}
-			if(param === 'special_symbol_for_XOR'){
-				special_symbol_for_XOR = value;
-				console.log('special_symbol_for_XOR', special_symbol_for_XOR);
-				return special_symbol_for_XOR;
+			if(param === 'XOR_char'){
+				XOR_char = value;
+				console.log('XOR_char', XOR_char);
+				return XOR_char;
 			}
 		}
 	}
@@ -901,18 +901,18 @@ isaacCSPRNG = function( specifiedSeed ){
 		){
 			var notify = 'Special symbol for XOR (vernam cipher) was been changed to symbol: ';
 			if(Vernam_XOR_symbol.length === 1 && alphabet.indexOf(Vernam_XOR_symbol)===-1){
-				param_set('special_symbol_for_XOR', Vernam_XOR_symbol);
-				console.log(notify, special_symbol_for_XOR);
-				return special_symbol_for_XOR;
+				param_set('XOR_char', Vernam_XOR_symbol);
+				console.log(notify, XOR_char);
+				return XOR_char;
 			}else if(Vernam_XOR_symbol.length===0 || Vernam_XOR_symbol.length > 1 || alphabet.indexOf(Vernam_XOR_symbol)!==-1){
 				if(Vernam_XOR_symbol.length > 1){
-					console.log('maximum one character for special symbol. Current length = ', Vernam_XOR_symbol.length);
+					console.log('maximum one character for XOR_char. Current length = ', Vernam_XOR_symbol.length);
 				}
-				param_set('special_symbol_for_XOR', default_special_symbol_for_XOR);			//set default special symbol if string was been empty.
-				console.log(notify, special_symbol_for_XOR);
-				return special_symbol_for_XOR;
+				param_set('XOR_char', default_XOR_char);			//set default XOR_char if string was been empty.
+				console.log(notify, XOR_char);
+				return XOR_char;
 			}else{
-				console.log('Another case for special symbol; return false;');
+				console.log('Another case for XOR_char; return false;');
 				return false;
 			}
 		}
@@ -944,10 +944,10 @@ isaacCSPRNG = function( specifiedSeed ){
 			var index = alphabet.indexOf(m);											//index of input symbol
 			var k;																		//define k
 			if(index === -1){															//if symbol not found in alphabet
-				if(m === special_symbol_for_XOR){
+				if(m === XOR_char){
 					wait_next_symbol = true;
 					return ['', ''];		//return empty string as cyphertext and key
-				}																		//If this was been special_symbol - return empty string and wait next symbol
+				}																		//If this was been XOR_char - return empty string and wait next symbol
 				else{																	//else
 					var error = 'symbol '+m+' not found in alphabet: '+alphabet;
 					console.log(error);													//show error
@@ -968,10 +968,10 @@ isaacCSPRNG = function( specifiedSeed ){
 			if(wait_next_symbol === true){ wait_next_symbol = false; }					//if need to wait next symbol - no need to wait now.
 			var result_symbol =
 				(insert_symbol===true)													//if need to insert symbol
-					? special_symbol_for_XOR + alphabet[xorred]							//add this to cyphertext
+					? XOR_char + alphabet[xorred]							//add this to cyphertext
 					: alphabet[xorred];													//or just add result symbol
 			if(insert_symbol===true){ insert_symbol=false; }							//If need to insert symbol - no need to insert now.
-			return [	result_symbol, alphabet[k]	];									//Return result symbol (or two, including special symbol)
+			return [	result_symbol, alphabet[k]	];									//Return result symbol (or two, including XOR_char)
 		}
 		else if( algo === 'tritemius' ){
 			//Tritemius cipher
@@ -1047,13 +1047,13 @@ isaacCSPRNG = function( specifiedSeed ){
 		var key = (typeof key === 'undefined') ? '' : key;
 		
 		var key_length = key.length;
-		var special_symbols_count = 0;
+		var XOR_chars_count = 0;
 		
 		var text_cypher_length = (typeof text_cypher !== 'undefined') ? text_cypher.length : 0;
 		for(var i=0; i<text_cypher_length; i++){
-			if(algo==='vernam' && text_cypher[i] === special_symbol_for_XOR){
+			if(algo==='vernam' && text_cypher[i] === XOR_char){
 				symbol(text_cypher[i], param, '');	//to wait next symbol
-				special_symbols_count++;			//skip this special symbol
+				XOR_chars_count++;			//skip this XOR_char
 				continue;							//and continue
 			}
 
@@ -1064,9 +1064,9 @@ isaacCSPRNG = function( specifiedSeed ){
 					(typeof key === 'undefined')
 						? undefined
 						: key[
-							( ( ( i-special_symbols_count ) >= key_length )		//shift index
-								? ( i - special_symbols_count ) % key_length	//if key is so small, repeat this
-								: ( i - special_symbols_count )					//or current index without skiped indexes
+							( ( ( i-XOR_chars_count ) >= key_length )		//shift index
+								? ( i - XOR_chars_count ) % key_length	//if key is so small, repeat this
+								: ( i - XOR_chars_count )					//or current index without skiped indexes
 							)
 						]
 				);
@@ -1104,7 +1104,7 @@ function test(){
 	algo = 'vernam';
 	
 	progress_string(	undefined,	undefined,	undefined,	'vernam',	undefined,	undefined	);	//set vernam algo
-	progress_string(	undefined,	undefined,	undefined,	undefined,	undefined,	"+"			);	//set special_symbol_for_XOR
+	progress_string(	undefined,	undefined,	undefined,	undefined,	undefined,	"+"			);	//set XOR_char
 	
 	var vernam_encrypt = '';
 	for(i=0; i<string.length; i++){
@@ -1367,10 +1367,10 @@ function test(){
 			//7 CYPHERS (strings and symbols encryption/decryption with custom or CSPRNG keys)
 				//Reversive (one button for encrypt/decrypt): 			| Vernam   | Shifted atbash  | Beaufort   | Atbash	 |
 				//Not Reversive (two buttons for encrypt and decrypt): 	| Tritemius   | Gronsfeld	  | Vizhener   | 
-			, 'symbol'			:	symbol				//symbol_by_symbol encrypt/decrypt, update algo, update alphabet, update special_symbol_for_XOR
-			, 'progress_string'	:	progress_string		//string encrypt/decrypt, update algo, update alphabet, update special_symbol_for_XOR
-			, 'param_get'		:	param_get			//param_get(param): algo, alphabet, special_symbol_for_XOR
-			, 'param_set'		:	param_set			//param_set(param, value): algo, alphabet, special_symbol_for_XOR
+			, 'symbol'			:	symbol				//symbol_by_symbol encrypt/decrypt, update algo, update alphabet, update XOR_char
+			, 'progress_string'	:	progress_string		//string encrypt/decrypt, update algo, update alphabet, update XOR_char
+			, 'param_get'		:	param_get			//param_get(param): algo, alphabet, XOR_char
+			, 'param_set'		:	param_set			//param_set(param, value): algo, alphabet, XOR_char
 			//See commented USAGE here. You can uncomment it and see console.log( F12 button ), then.
         };
      

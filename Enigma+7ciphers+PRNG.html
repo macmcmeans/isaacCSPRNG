@@ -53,10 +53,10 @@ CSPRNG key = seed + message.length'><br>
 				<br>
 				<font color="black"><b>Reversive (one button for encrypt/decrypt): </b></font>
 			| <label>Vernam 		<input type="radio" id="Vernam_mode" 				name="cypher" value="Vernam" checked="checked" onclick="set_cypher();"/></label>
-				<input id="special_symbol_for_XOR" value="" maxlength="1" size="1"
-				title="Input special symbol for XOR, if code of symbol is greater than (2^N - 1).
+				<input id="XOR_char" value="" maxlength="1" size="1"
+				title="Input XOR_char, if code of symbol is greater than (2^N - 1).
 This symbol must not to be in the alphabet, and just will be using as marker."
-				oninput="change_special_symbol_for_XOR();"></input>
+				oninput="change_XOR_char();"></input>
 			| <label>Shifted atbash 	<input type="radio" id="shifted_atbash_mode" 	name="cypher" value="shifted_atbash" onclick="set_cypher();"/></label>
 			| <label>Beaufort 		<input type="radio" id="Beaufort_mode" 				name="cypher" value="Beaufort" onclick="set_cypher();"/></label>
 			| <label>Atbash	<input type="radio" id="Atbash_mode" 						name="cypher" value="Atbash" onclick="set_cypher();"/></label>
@@ -197,9 +197,9 @@ console.log(
 
 	var prng = isaacCSPRNG();			//Define generator object with isaacCSPRNG
 
-	var use_special_symbol_for_XOR = '+';
-	var special_symbol_for_XOR_element = document.getElementById('special_symbol_for_XOR');
-	special_symbol_for_XOR_element.value = use_special_symbol_for_XOR;
+	var use_XOR_char = '+';
+	var XOR_char_element = document.getElementById('XOR_char');
+	XOR_char_element.value = use_XOR_char;
 	
 	var shuffled_alphabet_pre = document.getElementById('shuffled_alphabet');
 
@@ -238,7 +238,7 @@ console.log(
 		Gronsfeld_decrypt_button.style.display			= 'none';
 		tritemius_encrypt_button.style.display			= 'none';
 		tritemius_decrypt_button.style.display			= 'none';
-		special_symbol_for_XOR_element.style.display 	= 'none';
+		XOR_char_element.style.display 	= 'none';
 
 		//Then enable selected	
 		if(Shifted_atbash_mode.checked){
@@ -250,8 +250,8 @@ console.log(
 		//	console.log('Vernam_mode');
 			encrypt_decrypt_button.style.display 			= 'inline-block';
 			encrypt_decrypt_button.style.display 			= 'inline-block';
-			special_symbol_for_XOR_element.style.display 	= 'inline-block';
-			progress_text(undefined, undefined, undefined, undefined, 'vernam', undefined, special_symbol_for_XOR_element.value);
+			XOR_char_element.style.display 	= 'inline-block';
+			progress_text(undefined, undefined, undefined, undefined, 'vernam', undefined, XOR_char_element.value);
 		}
 		else if(Vizhener_mode.checked){
 		//	console.log('Vizhener');
@@ -294,27 +294,27 @@ console.log(
 	set_cypher();	//run onload page.
 
 
-//function to change special symbol from input - to custom symbol
-function change_special_symbol_for_XOR(){
-	if(alphabet.indexOf(special_symbol_for_XOR_element.value)===-1){
-		progress_text(undefined, undefined, undefined, undefined, undefined, undefined, special_symbol_for_XOR_element.value);
-		show_hide_border(special_symbol_for_XOR_element, "green", border_size);
-		prng.param_set('special_symbol_for_XOR', 	special_symbol_for_XOR_element.value);	
-		update_textareas_vernam_cipher(special_symbol_for_XOR_element.value);
+//function to change XOR_char from input - to custom symbol
+function change_XOR_char(){
+	if(alphabet.indexOf(XOR_char_element.value)===-1){
+		progress_text(undefined, undefined, undefined, undefined, undefined, undefined, XOR_char_element.value);
+		show_hide_border(XOR_char_element, "green", border_size);
+		prng.param_set('XOR_char', 	XOR_char_element.value);	
+		update_textareas_vernam_cipher(XOR_char_element.value);
 	}else{
-		progress_text(undefined, undefined, undefined, undefined, undefined, undefined, '�');		//set default special symbol
-		show_hide_border(special_symbol_for_XOR_element, "red", border_size);
-		if(special_symbol_for_XOR_element.value !== ''){
+		progress_text(undefined, undefined, undefined, undefined, undefined, undefined, '�');		//set default XOR_char
+		show_hide_border(XOR_char_element, "red", border_size);
+		if(XOR_char_element.value !== ''){
 			setTimeout(
 				function(){
-					special_symbol_for_XOR_element.value = '�';
-					prng.param_set('special_symbol_for_XOR', 	special_symbol_for_XOR_element.value);
-					update_textareas_vernam_cipher(special_symbol_for_XOR_element.value);
+					XOR_char_element.value = '�';
+					prng.param_set('XOR_char', 	XOR_char_element.value);
+					update_textareas_vernam_cipher(XOR_char_element.value);
 				}, 500
 			)
 		}
 	}
-	//console.log("prng.param_get('special_symbol_for_XOR')", prng.param_get('special_symbol_for_XOR'));
+	//console.log("prng.param_get('XOR_char')", prng.param_get('XOR_char'));
 }
 
 
@@ -378,7 +378,7 @@ function change_special_symbol_for_XOR(){
 		}
 
 		if(Vernam_mode.checked){
-			prng.param_set('special_symbol_for_XOR', 	special_symbol_for_XOR_element.value);	//update XOR-symbol, for vernam cipher, if need.
+			prng.param_set('XOR_char', 	XOR_char_element.value);	//update XOR-symbol, for vernam cipher, if need.
 		}
 				
 		progress_text('', '', '', '', '', symbols);
@@ -493,7 +493,7 @@ function change_special_symbol_for_XOR(){
 		for (i = 0; i < this.value.length; i++){
 			msg_in.value 	+= 	this.value;
 			var result = prng.symbol(this.value);
-			if(msg_in.value[msg_in.value.length-2] === special_symbol_for_XOR_element.value){
+			if(msg_in.value[msg_in.value.length-2] === XOR_char_element.value){
 				result[0] = result[0].slice(1); //remove xor char from result
 			}
 			msg_out.value 				+= 	result[0];	//cipher
@@ -501,7 +501,7 @@ function change_special_symbol_for_XOR(){
 		}
 		this.value = "";
 		this.focus();
-	}
+	};
 
 	//remove symbol on press Backspace or Delete buttons
 	init_txtinput.onkeydown = function(event) {
@@ -515,7 +515,7 @@ function change_special_symbol_for_XOR(){
 			;
 			
 			 //remove XOR-char
-			if( msg_in.value[msg_in.value.length-1] === special_symbol_for_XOR_element.value ){
+			if( msg_in.value[msg_in.value.length-1] === XOR_char_element.value ){
 				msg_in.value = msg_in.value.slice(0, -1);
 			}
 
@@ -526,7 +526,7 @@ function change_special_symbol_for_XOR(){
 			;
 
 			//remove XOR-char
-			if( msg_out.value[msg_out.value.length-1] === special_symbol_for_XOR_element.value ){
+			if( msg_out.value[msg_out.value.length-1] === XOR_char_element.value ){
 				msg_out.value = msg_out.value.slice(0, -1);
 			}
 
@@ -597,7 +597,7 @@ function change_special_symbol_for_XOR(){
 					(alphabet.indexOf(src[i]) === -1)
 				&& 	!(
 							(prng.param_get('algo') === 'vernam')
-						&&	(src[i] === prng.param_get('special_symbol_for_XOR'))
+						&&	(src[i] === prng.param_get('XOR_char'))
 					)
 			){
 				show_hide_border(txt_in, "red", border_size);
