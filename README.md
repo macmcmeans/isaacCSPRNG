@@ -5,7 +5,7 @@ Internally, my implementation here is largely Rinquin's logic (see [REFS](https:
 
 Since this is a CSPRNG, or alternatively, a Deterministic Random Bit Generator (DRBG), I added logic to directly perform simple [vernam](https://en.wikipedia.org/wiki/One-time_pad) (XOR) encryption. As an academic option, I created the ability to get and set the generator's internal state. Lastly, unseeded instances will internally set themselves with a default value from [Window.crypto](https://archive.ph/4h0zE) values, which would be suitable for Monte Carlo simulations where deterministic output is not required.
 
-There are surprisingly few JavaScript examples of ISAAC. Considering it's over 20 years old, and has never been proven broken, one would expect more mention of it.
+There are surprisingly few JavaScript examples of ISAAC. Considering it's almost 30 years old, and has never been proven broken, one would expect more mention of it.
 
 This generator is emoji-friendly 🧐😲😊👍, which is to say that seeds, cipher keys and plaintexts are multi-byte Unicode-safe.
 
