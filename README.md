@@ -1,11 +1,11 @@
 # 🔣 isaacCSPRNG [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity) [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[ISAAC](https://en.wikipedia.org/wiki/ISAAC_(cipher)) is a *cryptographically secure* pseudo-random number generator ([CSPRNG](https://en.wikipedia.org/wiki/Cryptographically-secure_pseudorandom_number_generator)), meant to be usable as a [stream cipher](https://archive.is/cOe1D), created by [Robert J. Jenkins Jr.](https://en.wikipedia.org/wiki/Robert_John_Jenkins_Junior), in 1996, based on [RC4](https://en.wikipedia.org/wiki/RC4). Designed for speed and security, ISAAC (Indirection, Shift, Accumulate, Add, and Count) generates 32-bit random numbers. On average, cycles are 2<sup>8295</sup> values long, and are guaranteed to be at least 2<sup>40</sup> values long. The results are uniformly distributed, unbiased, and unpredictable unless you know the seed. Speaking of which, it's the responsibility of the user to seed ISAAC with a strong entropy source.
+[ISAAC](https://en.wikipedia.org/wiki/ISAAC_(cipher)) is a *cryptographically secure* pseudo-random number generator ([CSPRNG](https://en.wikipedia.org/wiki/Cryptographically-secure_pseudorandom_number_generator)), meant to be usable as a [stream cipher](https://archive.is/cOe1D), created by [Robert J. Jenkins Jr.](https://en.wikipedia.org/wiki/Robert_John_Jenkins_Junior), in 1996, based on [RC4](https://en.wikipedia.org/wiki/RC4). Designed for speed and security, ISAAC (Indirection, Shift, Accumulate, Add, and Count) generates 32-bit random numbers. On average, cycles are 2<sup>8295</sup> values long, and are guaranteed to be at least 2<sup>40</sup> values long. The results are uniformly distributed, unbiased, and unpredictable unless you know the seed. Speaking of which, it’s the responsibility of the user to seed ISAAC with a strong entropy source.
 
-Internally, my implementation here is largely Rinquin's logic (see [REFS](https://github.com/macmcmeans/isaacCSPRNG/blob/master/README.md#refs)) which appears to be quite similar to Jenkins' original work (in C) which he released into the Public Domain. My contributions are a [namespace](https://archive.is/fqM9P), so that separate instances may be created; as well as helper functions to spit out random bytes, and random strings, of desired lengths. Going further, my *int32*, *double* and *range* methods expand the output options from the orginal *random* and *rand* methods; and where Rinquin extends the String object, my version uses separate functions in lieu of extending the native prototype.
+Internally, my implementation here is largely Rinquin’s logic (see [REFS](https://github.com/macmcmeans/isaacCSPRNG/blob/master/README.md#refs)) which appears to be quite similar to Jenkins’ original work (in C) which he released into the Public Domain. My contributions are a [namespace](https://archive.is/fqM9P), so that separate instances may be created; as well as helper functions to spit out random bytes, and random strings, of desired lengths. Going further, my *int32*, *double* and *range* methods expand the output options from the orginal *random* and *rand* methods; and where Rinquin extends the String object, my version uses separate functions in lieu of extending the native prototype.
 
-Since this is a CSPRNG, or alternatively, a Deterministic Random Bit Generator (DRBG), I added logic to directly perform simple [vernam](https://en.wikipedia.org/wiki/One-time_pad) (XOR) encryption. As an academic option, I created the ability to get and set the generator's internal state. Lastly, unseeded instances will internally set themselves with a default value from [Window.crypto](https://archive.ph/4h0zE) values, which would be suitable for Monte Carlo simulations where deterministic output is not required.
+Since this is a CSPRNG, or alternatively, a Deterministic Random Bit Generator (DRBG), I added logic to directly perform simple [vernam](https://en.wikipedia.org/wiki/One-time_pad) (XOR) encryption. As an academic option, I created the ability to get and set the generator’s internal state. Lastly, unseeded instances will internally set themselves with a default value from [Window.crypto](https://archive.ph/4h0zE) values, which would be suitable for Monte Carlo simulations where deterministic output is not required.
 
-There are surprisingly few JavaScript examples of ISAAC. Considering it's almost 30 years old, and has never been proven broken, one would expect more mention of it.
+There are surprisingly few JavaScript examples of ISAAC. Considering it’s almost 30 years old, and has never been proven broken, one would expect more mention of it.
 
 This generator is emoji-friendly 🧐😲😊👍, which is to say that seeds, cipher keys and plaintexts are multi-byte Unicode-safe.
 
@@ -24,7 +24,7 @@ Date: 3 MAY 2018
 <br>&nbsp;<br>
 
 ## Application:
-Use this to produce high-quality random numbers, and to encipher discrete messages and streams. You may also create arbitrary length byte arrays and text strings of random composition. Note: This generator is cryptographically secure. If you don't need a secure generator then consider <a href="https://github.com/macmcmeans/aleaPRNG">ALEA</a> for your application, an RNG created by Johannes Baagøe having excellent statistical properties.
+Use this to produce high-quality random numbers, and to encipher discrete messages and streams. You may also create arbitrary length byte arrays and text strings of random composition. Note: This generator is cryptographically secure. If you don’t need a secure generator then consider <a href="https://github.com/macmcmeans/aleaPRNG">ALEA</a> for your application, an RNG created by Johannes Baagøe having excellent statistical properties.
 
 
 ## Dependencies:
@@ -102,11 +102,11 @@ Average 2<sup>8295</sup> (not less than 2<sup>40</sup>)
 > secret = prng1.encipher( 'key', secret )        -->  "message"
 
 
-// export an object that describes the generator's internal state
+// export an object that describes the generator’s internal state
 > state = prng1.export();                         -->  JSON
 
 
-// import an object that will set the generator's internal state
+// import an object that will set the generator’s internal state
 > prng1.import( state );
 
 
